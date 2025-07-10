@@ -1,84 +1,118 @@
-# Emulador Crédito Trabalhador
+# Emulador de Crédito ao Trabalhador
 
-Este projeto é um emulador de API para consulta de dados de consignações de empregadores, desenvolvido em Node.js com Express. Ele simula respostas de uma API real, utilizando dados mockados em um arquivo JSON.
+Este projeto é um emulador de API para um sistema de crédito consignado. Ele utiliza um arquivo JSON como uma base de dados mock para simular a consulta de informações de consignações de trabalhadores. A aplicação é construída com Node.js e Express.
 
 ## Funcionalidades
 
-- Endpoint para consulta de dados de consignações de empregadores.
-- Validação de parâmetros obrigatórios.
-- Autenticação via API Key.
-- Respostas mockadas baseadas em parâmetros da requisição.
-- Retorno de erros padronizados para parâmetros inválidos ou ausentes.
+- Servir dados mock de consignações a partir de um arquivo JSON.
+- Filtrar consignações por CPF do trabalhador.
+- Filtrar consignações por múltiplos CPFs.
+- Agrupar consignações por CPF e somar os valores das parcelas.
 
 ## Pré-requisitos
 
-- Node.js (versão 18 ou superior)
-- npm
+Antes de começar, você vai precisar ter as seguintes ferramentas instaladas em sua máquina:
+- [Node.js](https://nodejs.org/en/) (versão 18 ou superior)
+- [npm](https://www.npmjs.com/) (geralmente vem com o Node.js)
 
 ## Instalação
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/SEU_USUARIO/emulador-credito-trabalhador.git
-   cd emulador-credito-trabalhador
+   git clone <URL_DO_REPOSITORIO>
    ```
 
-2. Instale as dependências:
+2. Navegue até o diretório do projeto:
+   ```bash
+   cd emuladorCreditoTrab
+   ```
+
+3. Instale as dependências:
    ```bash
    npm install
    ```
 
-3. Crie um arquivo `.env` na raiz do projeto (exemplo já incluso):
-   ```
-   PORT=3003
-   NODE_ENV=development
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USER=seu_usuario
-   DB_PASSWORD=sua_senha
-   DB_NAME=nome_do_banco
-   JWT_SECRET=sua_chave_secreta
+## Como Usar
+
+1. Inicie o servidor:
+   ```bash
+   npm start
    ```
 
-4. Certifique-se de que o arquivo `dados-consignacoes-mock.json` está presente na raiz do projeto e contém os dados mockados.
+2. O servidor estará rodando em `http://localhost:3000`.
 
-## Uso
+### Endpoints da API
 
-Inicie o servidor:
+A API fornece os seguintes endpoints para interagir com os dados de consignação:
 
-```bash
-npm start
+#### Listar todas as consignações
+
+- **URL:** `/consignacoes`
+- **Método:** `GET`
+- **Descrição:** Retorna uma lista com todos os contratos de consignação.
+- **Exemplo de Requisição (usando curl):**
+  ```bash
+  curl http://localhost:3000/consignacoes
+  ```
+
+#### Buscar consignações por CPF
+
+- **URL:** `/consignacoes/:cpf`
+- **Método:** `GET`
+- **Descrição:** Retorna uma lista de contratos de consignação para um CPF específico.
+- **Parâmetros:**
+  - `cpf` (string): O CPF do trabalhador.
+- **Exemplo de Requisição (usando curl):**
+  ```bash
+  curl http://localhost:3000/consignacoes/77824324729
+  ```
+
+#### Buscar consignações para múltiplos CPFs
+
+- **URL:** `/consignacoes`
+- **Método:** `POST`
+- **Descrição:** Retorna uma lista de contratos de consignação para uma lista de CPFs fornecida no corpo da requisição.
+- **Corpo da Requisição (Body):**
+  ```json
+  {
+    "cpfs": ["77824324729", "93097676503"]
+  }
+  ```
+- **Exemplo de Requisição (usando curl):**
+  ```bash
+  curl -X POST -H "Content-Type: application/json" -d '{"cpfs": ["77824324729", "93097676503"]}' http://localhost:3000/consignacoes
+  ```
+
+#### Agrupar consignações por CPF
+
+- **URL:** `/consignacoes/agrupado-por-cpf`
+- **Método:** `GET`
+- **Descrição:** Retorna os dados agrupados por CPF, com a soma do valor das parcelas e a lista de contratos de cada trabalhador.
+- **Exemplo de Requisição (usando curl):**
+  ```bash
+  curl http://localhost:3000/consignacoes/agrupado-por-cpf
+  ```
+
+> **Nota:** O projeto inclui as dependências `multer` e `csv-parser`, sugerindo que pode haver uma funcionalidade de upload de arquivos CSV. Um endpoint como `POST /upload` pode estar disponível para isso.
+
+## Estrutura dos Dados
+
+Os dados de consignação são armazenados no arquivo `dados-consignacoes-mock.json`. Cada objeto no array representa um contrato de consignação com a seguinte estrutura (exemplo):
+
+```json
+{
+  "ifConcessora.codigo": 908,
+  "ifConcessora.descricao": "PARATI CFI S A",
+  "contrato": 678001209,
+  "cpf": 77824324729,
+  "matricula": 9400,
+  "valorParcela": "284,41"
+}
 ```
 
-O servidor estará disponível em `http://localhost:3003` (ou na porta definida no `.env`).
+## Dependências
 
-### Endpoint disponível
-
-```
-GET /dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=12345678000195&competencia=202501
-```
-
-#### Parâmetros obrigatórios
-
-- `codigoInscricao`: Código de inscrição do empregador (inteiro).
-- `numeroInscricao`: Número de inscrição do empregador (string).
-- `competencia`: Competência no formato AAAAMM (ex: 202501 para Jan/2025).
-
-#### Autenticação
-
-Inclua o header `apikey` com o valor definido na constante `EXPECTED_API_KEY` do código (padrão: `supersecretapikey`).
-
-Exemplo de requisição com `curl`:
-
-```bash
-curl -H "apikey: supersecretapikey" "http://localhost:3003/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=12345678000195&competencia=202501"
-```
-
-## Observações
-
-- Para a competência `202412`, o endpoint retorna uma lista vazia (simulando ausência de dados).
-- O arquivo `.gitignore` já está configurado para ignorar arquivos sensíveis e diretórios comuns de build/cache.
-
-## Licença
-
-Este projeto está licenciado sob a licença ISC.
+As dependências do projeto estão listadas no arquivo `package.json`:
+- `express`: Framework web para Node.js.
+- `multer`: Middleware para manipulação de `multipart/form-data`, usado para upload de arquivos.
+- `csv-parser`: Parser de streaming de CSV para Node.js.

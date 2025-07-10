@@ -4,164 +4,137 @@ const express = require('express');
 const fs = require('fs');
 // Importa o módulo 'path' para manipular caminhos de arquivos de forma consistente
 const path = require('path');
+// Importa as funções de validação
+const { isValidCnpj, isValidCpf } = require('./validator');
 
 // Cria uma instância do aplicativo Express
 const app = express();
 // Define a porta do servidor, utilizando a variável de ambiente PORT ou 3000 como padrão
 const PORT = process.env.PORT || 3000;
 
-// Chave de API esperada para emulação (você pode alterar este valor)
-const EXPECTED_API_KEY = 'supersecretapikey';
+// --- Mapeamento de Erros Conforme a Documentação (item 4.1 do PDF) ---
+const API_ERRORS = {
+    // Erros de Bad Request (400)
+    PARAM_CODIGO_INSCRICAO_FALTANDO: { status: 400, codigo: 'PARAM_001', mensagem: 'Parâmetro de pesquisa esperado não foi informado: codigoInscricao' },
+    PARAM_NUMERO_INSCRICAO_FALTANDO: { status: 400, codigo: 'PARAM_002', mensagem: 'Parâmetro de pesquisa esperado não foi informado: numeroInscricao' },
+    PARAM_COMPETENCIA_FALTANDO: { status: 400, codigo: 'PARAM_003', mensagem: 'Parâmetro de pesquisa esperado não foi informado: competencia' },
+    
+    // Erros de Precondition Failed (412)
+    CT_COMPETENCIA_INVALIDA: { status: 412, codigo: 'CT', mensagem: 'A competência de consulta está inválida' },
+    CT_COMPETENCIA_FUTURA: { status: 412, codigo: 'CT', mensagem: 'Dados de Contratos para esta competência ainda não foram fechados' },
+    LF_NAO_ENCONTRADO: { status: 412, codigo: 'LF', mensagem: 'Consulta não encontrou registros' },
+    PR_SEM_PROCURACAO: { status: 412, codigo: 'PR', mensagem: 'O CNPJ/CPF autenticado não possui procuração outorgada pelo empregador' },
+    SJ_CNPJ_DV_INVALIDO: { status: 412, codigo: 'SJ', mensagem: 'O CNPJ informado está com o DV inválido' },
+    SP_CNPJ_FORMATO_INVALIDO: { status: 412, codigo: 'SP', mensagem: 'O parâmetro CNPJ informado não representa um CNPJ raiz ou CNPJ completo válido' },
+    SQ_CPF_DV_INVALIDO: { status: 412, codigo: 'SQ', mensagem: 'O CPF informado está com o DV inválido' },
+    SU_INSCRICAO_CARACTERES_INVALIDOS: { status: 412, codigo: 'SU', mensagem: 'Número de inscrição inválido' },
+};
+
+// Função auxiliar para enviar respostas de erro padronizadas
+const sendError = (res, error) => {
+    return res.status(error.status).json({
+        erros: [{
+            codigo: error.codigo,
+            mensagem: error.mensagem,
+        }],
+    });
+};
+
 
 // Carregar os dados mockados do arquivo JSON ao iniciar o servidor
 let mockDataTemplate = [];
 const mockDataPath = path.join(__dirname, 'dados-consignacoes-mock.json');
 
 try {
-  // Lê o conteúdo do arquivo JSON de forma síncrona
   const fileContent = fs.readFileSync(mockDataPath, 'utf-8');
-  // Converte o conteúdo JSON para um objeto JavaScript
   mockDataTemplate = JSON.parse(fileContent);
   console.log('Dados mockados carregados de dados-consignacoes-mock.json');
 } catch (error) {
   console.error('Erro ao carregar o arquivo dados-consignacoes-mock.json:', error.message);
-  console.error('Verifique se o arquivo existe no caminho correto e se é um JSON válido.');
-  // Se não conseguir carregar, o servidor pode parar ou usar um fallback.
-  // Por simplicidade, mockDataTemplate continuará como array vazio e o erro será logado.
-  // Em um cenário de produção, você poderia querer encerrar o processo: process.exit(1);
+  process.exit(1); // Encerra o processo se o mock não puder ser carregado
 }
 
-
 /**
- * Middleware para verificar a API Key no cabeçalho da requisição.
- * @param {express.Request} req - Objeto da requisição.
- * @param {express.Response} res - Objeto da resposta.
- * @param {express.NextFunction} next - Função para chamar o próximo middleware.
+ * Endpoint principal para consulta de dados de consignações.
+ * Valida os parâmetros de entrada e retorna os dados ou um erro,
+ * conforme especificado na documentação.
  */
-const checkApiKey = (req, res, next) => {
-  const apiKey = req.header('apikey');
-  if (!apiKey) {
-    return res.status(401).json({
-      erros: [{
-        codigo: 'AUTH_001',
-        mensagem: 'API Key não fornecida.',
-      }],
-    });
-  }
-  if (apiKey !== EXPECTED_API_KEY) {
-    return res.status(403).json({
-      erros: [{
-        codigo: 'AUTH_002',
-        mensagem: 'API Key inválida.',
-      }],
-    });
-  }
-  next();
-};
-
-app.get('/dados-consignacoes-empregador', checkApiKey, (req, res) => {
+app.get('/dados-consignacoes-empregador', (req, res) => {
   const { codigoInscricao, numeroInscricao, competencia } = req.query;
 
-  const errosValidacao = [];
-  if (!codigoInscricao) {
-    errosValidacao.push({
-      codigo: 'PARAM_001',
-      mensagem: 'Parâmetro obrigatório "codigoInscricao" não fornecido.',
-    });
+  // 1. Validação de presença dos parâmetros (HTTP 400)
+  if (!codigoInscricao) return sendError(res, API_ERRORS.PARAM_CODIGO_INSCRICAO_FALTANDO);
+  if (!numeroInscricao) return sendError(res, API_ERRORS.PARAM_NUMERO_INSCRICAO_FALTANDO);
+  if (!competencia) return sendError(res, API_ERRORS.PARAM_COMPETENCIA_FALTANDO);
+
+  // 2. Validações de formato e regras de negócio (HTTP 412)
+  if (!/^\d+$/.test(numeroInscricao)) {
+    return sendError(res, API_ERRORS.SU_INSCRICAO_CARACTERES_INVALIDOS);
   }
-  if (!numeroInscricao) {
-    errosValidacao.push({
-      codigo: 'PARAM_002',
-      mensagem: 'Parâmetro obrigatório "numeroInscricao" não fornecido.',
-    });
-  }
-  if (!competencia) {
-    errosValidacao.push({
-      codigo: 'PARAM_003',
-      mensagem: 'Parâmetro obrigatório "competencia" não fornecido.',
-    });
+  if (!/^\d{6}$/.test(competencia) || parseInt(competencia.substring(4, 6)) > 12 || parseInt(competencia.substring(4, 6)) === 0) {
+    return sendError(res, API_ERRORS.CT_COMPETENCIA_INVALIDA);
   }
 
-  if (codigoInscricao && isNaN(parseInt(codigoInscricao))) {
-    errosValidacao.push({
-      codigo: 'PARAM_004',
-      mensagem: 'Parâmetro "codigoInscricao" deve ser um inteiro.',
-    });
-  }
-  if (competencia && (isNaN(parseInt(competencia)) || competencia.length !== 6) ) {
-     errosValidacao.push({
-      codigo: 'PARAM_005',
-      mensagem: 'Parâmetro "competencia" deve ser um inteiro no formato AAAAMM (ex: 202501 para Jan/2025).',
-    });
+  // Simulação de competência futura/não fechada
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth() + 1; // getMonth() é 0-11
+  const anoReq = parseInt(competencia.substring(0, 4));
+  const mesReq = parseInt(competencia.substring(4, 6));
+
+  if (anoReq > anoAtual || (anoReq === anoAtual && mesReq > mesAtual)) {
+      return sendError(res, API_ERRORS.CT_COMPETENCIA_FUTURA);
   }
 
-  if (errosValidacao.length > 0) {
-    return res.status(412).json({
-      erros: errosValidacao,
-    });
+  // Validação do número de inscrição (CPF/CNPJ)
+  if (codigoInscricao === '1') { // CNPJ
+    if (numeroInscricao.length !== 8 && numeroInscricao.length !== 14) {
+        return sendError(res, API_ERRORS.SP_CNPJ_FORMATO_INVALIDO);
+    }
+    if (!isValidCnpj(numeroInscricao)) {
+        return sendError(res, API_ERRORS.SJ_CNPJ_DV_INVALIDO);
+    }
+  } else if (codigoInscricao === '2') { // CPF
+    if (!isValidCpf(numeroInscricao)) {
+        return sendError(res, API_ERRORS.SQ_CPF_DV_INVALIDO);
+    }
+  } else {
+    return sendError(res, { status: 412, codigo: 'PARAM_004', mensagem: 'Parâmetro "codigoInscricao" deve ser 1 (CNPJ) ou 2 (CPF).' });
   }
 
+  // Simulação de erro de procuração (PR) para um CNPJ específico
+  if (numeroInscricao.startsWith('99999999')) {
+    return sendError(res, API_ERRORS.PR_SEM_PROCURACAO);
+  }
+  
+  // 3. Lógica de busca dos dados
   const competenciaStr = competencia.toString();
-  const ano = parseInt(competenciaStr.substring(0, 4));
-  const mes = parseInt(competenciaStr.substring(4, 6));
+  const ano = competenciaStr.substring(0, 4);
+  const mes = competenciaStr.substring(4, 6);
+  const referencia = `${mes}/${ano}`;
 
-  // Criar uma cópia profunda do template para esta requisição
-  const requestSpecificMockData = JSON.parse(JSON.stringify(mockDataTemplate));
+  // A busca é feita pelo CNPJ raiz (8 primeiros dígitos)
+  const numeroInscricaoEmpregadorRaiz = numeroInscricao.substring(0, 8);
 
-  // Personalizar os dados mockados com base nos parâmetros da requisição
-  const processedMockData = requestSpecificMockData.map(templateItem => {
-    const item = { ...templateItem }; // Copia o item do template
-
-    item.contrato = `CTR${numeroInscricao}${String(mes).padStart(2,'0')}${ano}${item.contratoSuffix}`;
-    item.matricula = `MAT${numeroInscricao.slice(-5)}${item.matriculaSuffix}`;
-    item['inscricaoEmpregador.codigo'] = parseInt(codigoInscricao);
-    item['inscricaoEmpregador.descricao'] = parseInt(codigoInscricao) === 1 ? 'CNPJ' : 'CAEPF'; // Exemplo
-    item.numeroInscricaoEmpregador = numeroInscricao;
-    item.numeroInscricaoEstabelecimento = `${numeroInscricao.substring(0,8)}0001${numeroInscricao.slice(-2)}`; // Exemplo de CNPJ de estabelecimento
-    item.nomeEmpregador = `Empregador Exemplo ${numeroInscricao}`;
-    
-    item.dataInicioContrato = `${item.dataInicioContratoDay.padStart(2,'0')}/${String(mes).padStart(2,'0')}/${ano}`;
-    
-    let fimContratoMesCalc = mes + item.dataFimContratoOffsetMonths;
-    let fimContratoAnoCalc = ano;
-    if (fimContratoMesCalc > 12) {
-        fimContratoAnoCalc += Math.floor((fimContratoMesCalc -1) / 12);
-        fimContratoMesCalc = (fimContratoMesCalc -1) % 12 + 1;
-    }
-    item.dataFimContrato = `${item.dataFimContratoDay.padStart(2,'0')}/${String(fimContratoMesCalc).padStart(2,'0')}/${fimContratoAnoCalc}`;
-
-    item.competenciaInicioDesconto = `${String(mes).padStart(2,'0')}/${ano}`;
-
-    let fimDescontoMesCalc = mes + item.competenciaFimDescontoOffsetMonths;
-    let fimDescontoAnoCalc = ano;
-    if (fimDescontoMesCalc > 12) {
-        fimDescontoAnoCalc += Math.floor((fimDescontoMesCalc -1) / 12);
-        fimDescontoMesCalc = (fimDescontoMesCalc -1) % 12 + 1;
-    }
-    item.competenciaFimDesconto = `${String(fimDescontoMesCalc).padStart(2,'0')}/${fimDescontoAnoCalc}`;
-    
-    item.competencia = `${String(mes).padStart(2,'0')}/${ano}`;
-
-    // Remove as chaves de template que foram usadas para gerar os dados
-    delete item.contratoSuffix;
-    delete item.matriculaSuffix;
-    delete item.dataInicioContratoDay;
-    delete item.dataFimContratoDay;
-    delete item.dataFimContratoOffsetMonths;
-    delete item.competenciaFimDescontoOffsetMonths;
-
-    return item;
+  console.log(`Pesquisando por: CNPJ Raiz=${numeroInscricaoEmpregadorRaiz}, Competência=${referencia}`);
+  
+  const resultados = mockDataTemplate.filter(item => {
+      // Garante que a comparação seja feita com strings
+      return item.competencia == referencia && item.numeroInscricaoEmpregador == numeroInscricaoEmpregadorRaiz;
   });
 
-  if (competencia === '202412') { // Mantendo o exemplo para dados vazios
-    console.log(`Nenhum dado encontrado para a competência ${String(mes).padStart(2,'0')}/${ano} (parâmetro: ${competencia})`);
-    return res.status(200).json([]);
+  // 4. Retorno dos dados ou erro "Não Encontrado" (LF)
+  if (resultados.length === 0) {
+    // Para simular um resultado vazio, use uma competência sem dados, como 202501
+    console.log(`Nenhum dado encontrado para o CNPJ raiz ${numeroInscricaoEmpregadorRaiz} e a competência ${referencia}`);
+    return sendError(res, API_ERRORS.LF_NAO_ENCONTRADO);
   }
 
   console.log(`Consulta bem-sucedida para: codigoInscricao=${codigoInscricao}, numeroInscricao=${numeroInscricao}, competencia=${competencia}`);
-  res.status(200).json(processedMockData);
+  res.status(200).json(resultados);
 });
 
+// Middleware para rotas não encontradas
 app.use((req, res) => {
   res.status(404).json({
     erros: [{
@@ -171,16 +144,15 @@ app.use((req, res) => {
   });
 });
 
+// Inicia o servidor
 app.listen(PORT, () => {
   console.log(`Servidor de emulação da API rodando em http://localhost:${PORT}`);
-  console.log(`API Key para testes: ${EXPECTED_API_KEY}`);
-  if (mockDataTemplate.length === 0 && fs.existsSync(mockDataPath)) {
-    console.warn(`AVISO: O arquivo mock '${mockDataPath}' foi encontrado, mas parece estar vazio ou não pôde ser processado como JSON válido.`);
-  } else if (mockDataTemplate.length === 0 && !fs.existsSync(mockDataPath)) {
-     console.warn(`AVISO: O arquivo mock '${mockDataPath}' não foi encontrado. Respostas mockadas estarão vazias.`);
-  }
-  console.log('Endpoint disponível:');
-  console.log(`GET http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=12345678000195&competencia=202501`);
-  console.log('Exemplo para dados vazios (competencia 202412):')
-  console.log(`GET http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=12345678000195&competencia=202412`);
+  console.log('Endpoint disponível: GET /dados-consignacoes-empregador');
+  console.log('\n--- Exemplos de Teste ---');
+  console.log(`Sucesso: http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202506`);
+  console.log(`Não Encontrado (LF): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202501`);
+  console.log(`CNPJ Inválido (SJ): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000198&competencia=202506`);
+  console.log(`Competência Inválida (CT): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202513`);
+  console.log(`Sem Procuração (PR): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=99999999000199&competencia=202506`);
+  console.log('-------------------------\n');
 });
