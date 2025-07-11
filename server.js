@@ -12,6 +12,9 @@ const app = express();
 // Define a porta do servidor, utilizando a variável de ambiente PORT ou 3000 como padrão
 const PORT = process.env.PORT || 3000;
 
+// Middleware para parsear o corpo da requisição como JSON
+app.use(express.json());
+
 // --- Mapeamento de Erros Conforme a Documentação (item 4.1 do PDF) ---
 const API_ERRORS = {
     // Erros de Bad Request (400)
@@ -134,6 +137,55 @@ app.get('/dados-consignacoes-empregador', (req, res) => {
   res.status(200).json(resultados);
 });
 
+/**
+ * Endpoint para atualizar os dados mockados a partir de um JSON array.
+ * @param {string} [mode=replace] - O modo de atualização. Pode ser 'replace' para substituir
+ *   todos os dados ou 'append' para adicionar os novos dados aos existentes.
+ * @body {Array<object>} - Um array de objetos de consignação para atualizar o mock.
+ */
+app.post('/update-mock', (req, res) => {
+    const { mode } = req.query;
+    const newData = req.body;
+
+    // 1. Validação do corpo da requisição
+    if (!Array.isArray(newData)) {
+        return res.status(400).json({
+            erros: [{
+                codigo: 'BODY_001',
+                mensagem: 'O corpo da requisição deve ser um JSON array.',
+            }],
+        });
+    }
+
+    // 2. Lógica de atualização (append ou replace)
+    if (mode === 'append') {
+        mockDataTemplate.push(...newData);
+        console.log(`Modo 'append': ${newData.length} registros adicionados.`);
+    } else {
+        // Comportamento padrão é substituir
+        mockDataTemplate = newData;
+        console.log(`Modo 'replace': Mock de dados substituído com ${newData.length} registros.`);
+    }
+
+    // 3. Salva os dados atualizados de volta no arquivo .json
+    fs.writeFile(mockDataPath, JSON.stringify(mockDataTemplate, null, 2), 'utf-8', (err) => {
+        if (err) {
+            console.error('Erro ao salvar o arquivo de mock:', err);
+            return res.status(500).json({
+                erros: [{
+                    codigo: 'FILE_001',
+                    mensagem: 'Erro interno ao tentar salvar os dados mockados.',
+                }],
+            });
+        }
+
+        console.log('Arquivo dados-consignacoes-mock.json atualizado com sucesso.');
+        res.status(200).json({
+            mensagem: `Dados atualizados com sucesso. Modo: ${mode === 'append' ? 'append' : 'replace'}. Total de registros agora: ${mockDataTemplate.length}.`,
+        });
+    });
+});
+
 // Middleware para rotas não encontradas
 app.use((req, res) => {
   res.status(404).json({
@@ -147,12 +199,14 @@ app.use((req, res) => {
 // Inicia o servidor
 app.listen(PORT, () => {
   console.log(`Servidor de emulação da API rodando em http://localhost:${PORT}`);
-  console.log('Endpoint disponível: GET /dados-consignacoes-empregador');
+  console.log('\nEndpoints disponíveis:');
+  console.log('  - GET  /dados-consignacoes-empregador');
+  console.log('  - POST /update-mock?mode=[replace|append]');
   console.log('\n--- Exemplos de Teste ---');
-  console.log(`Sucesso: http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202506`);
-  console.log(`Não Encontrado (LF): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202501`);
-  console.log(`CNPJ Inválido (SJ): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000198&competencia=202506`);
-  console.log(`Competência Inválida (CT): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202513`);
-  console.log(`Sem Procuração (PR): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=99999999000199&competencia=202506`);
+  console.log(`  Sucesso: http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202506`);
+  console.log(`  Não Encontrado (LF): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202501`);
+  console.log(`  CNPJ Inválido (SJ): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000198&competencia=202506`);
+  console.log(`  Competência Inválida (CT): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202513`);
+  console.log(`  Sem Procuração (PR): http://localhost:${PORT}/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=99999999000199&competencia=202506`);
   console.log('-------------------------\n');
 });

@@ -8,6 +8,7 @@ Este projeto é um emulador de API para um sistema de consulta de dados de consi
 - Filtrar consignações por CNPJ/CPF do empregador e competência.
 - Realizar validações de parâmetros de entrada (formato, regras de negócio) conforme especificação.
 - Simular respostas de erro padronizadas (400, 412) para diferentes cenários.
+- Permitir a atualização dinâmica dos dados mock via API (substituir ou adicionar registros).
 
 ## Pré-requisitos
 
@@ -43,7 +44,7 @@ Antes de começar, você vai precisar ter as seguintes ferramentas instaladas em
 
 ### Endpoints da API
 
-A API fornece o seguinte endpoint para a consulta:
+A API fornece os seguintes endpoints:
 
 #### Consultar Dados de Consignação por Empregador
 
@@ -76,6 +77,15 @@ A API fornece o seguinte endpoint para a consulta:
     curl "http://localhost:3000/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=99999999000199&competencia=202506"
     ```
 
+#### Atualizar Dados Mock
+
+- **URL:** `/update-mock`
+- **Método:** `POST`
+- **Descrição:** Atualiza o arquivo `dados-consignacoes-mock.json` com novos dados. Esta funcionalidade é útil para testar diferentes cenários sem precisar editar o arquivo manualmente.
+- **Query Parameters:**
+  - `mode` (opcional): Define o modo de atualização.
+    - `replace` (padrão): Substitui todo o conteúdo do arquivo mock com os dados enviados.
+    - `append`: Adiciona os dados enviados ao
 ## Validações e Códigos de Erro
 
 A API implementa as seguintes validações e retorna os erros correspondentes:
