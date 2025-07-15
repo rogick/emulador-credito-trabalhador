@@ -46,6 +46,22 @@ Antes de começar, você vai precisar ter as seguintes ferramentas instaladas em
 
 A API fornece os seguintes endpoints:
 
+#### Health Check
+
+- **URL:** `/health`
+- **Método:** `GET`
+- **Descrição:** Verifica a saúde da aplicação. Retorna um status `UP` se o servidor estiver rodando.
+- **Exemplo de Requisição (usando `curl`):**
+  ```bash
+  curl "http://localhost:3000/health"
+  ```
+- **Exemplo de Resposta:**
+  ```json
+  {
+    "status": "UP"
+  }
+  ```
+
 #### Consultar Dados de Consignação por Empregador
 
 - **URL:** `/dados-consignacoes-empregador`

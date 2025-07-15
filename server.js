@@ -43,6 +43,14 @@ const sendError = (res, error) => {
     });
 };
 
+/**
+ * Endpoint para verificar a saúde da aplicação (Health Check).
+ * Retorna um status 200 OK se a aplicação estiver rodando.
+ */
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'UP' });
+});
+
 
 // Carregar os dados mockados do arquivo JSON ao iniciar o servidor
 let mockDataTemplate = [];
@@ -200,6 +208,7 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor de emulação da API rodando em http://localhost:${PORT}`);
   console.log('\nEndpoints disponíveis:');
+  console.log('  - GET  /health');
   console.log('  - GET  /dados-consignacoes-empregador');
   console.log('  - POST /update-mock?mode=[replace|append]');
   console.log('\n--- Exemplos de Teste ---');
