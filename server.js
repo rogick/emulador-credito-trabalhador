@@ -125,7 +125,7 @@ app.get('/dados-consignacoes-empregador', (req, res) => {
   const referencia = `${mes}/${ano}`;
 
   // A busca é feita pelo CNPJ raiz (8 primeiros dígitos)
-  const numeroInscricaoEmpregadorRaiz = numeroInscricao.substring(0, 8);
+  const numeroInscricaoEmpregadorRaiz = codigoInscricao === '1' ? numeroInscricao.substring(0, 8) : numeroInscricao;
 
   console.log(`Pesquisando por: CNPJ Raiz=${numeroInscricaoEmpregadorRaiz}, Competência=${referencia}`);
   
