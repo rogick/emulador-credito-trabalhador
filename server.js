@@ -16,7 +16,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 
 // Cria uma instância do aplicativo Express
 const app = express();
-// Define a porta do servidor, utilizando a variável de ambiente PORT ou 3000 como padrão
+// Define a porta do servidor, utilizando a variável de ambiente PORT ou 3019 como padrão
 const PORT = process.env.PORT || 3019;
 
 // Middleware para parsear o corpo da requisição como JSON

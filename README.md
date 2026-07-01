@@ -16,27 +16,31 @@ Este projeto é um emulador da API **Crédito Trabalhador — Dados de consigna�
 - Consultar um contrato de empréstimo específico por número de contrato.
 - Realizar validações de parâmetros de entrada (formato, regras de negócio) conforme especificação.
 - Simular respostas de erro padronizadas (400, 412) para diferentes cenários.
-- Permitir a atualização dinâmica dos dados mock via API (substituir ou adicionar registros) por dataset.
+- Permitir a atualização dinâmica dos dados mock via API (substituir ou adicionar registros) ou através do Painel Web integrado (interface administrativa CRUD com suporte a importação JSON/CSV e exportação).
 
 ## Pré-requisitos
 
 Antes de começar, você vai precisar ter as seguintes ferramentas instaladas em sua máquina:
+
 - [Node.js](https://nodejs.org/en/) (versão 18 ou superior)
 - [npm](https://www.npmjs.com/) (geralmente vem com o Node.js)
 
 ## Instalação
 
 1. Clone o repositório:
+
    ```bash
    git clone <URL_DO_REPOSITORIO>
    ```
 
 2. Navegue até o diretório do projeto:
+
    ```bash
    cd emuladorCreditoTrab
    ```
 
 3. Instale as dependências:
+
    ```bash
    npm install
    ```
@@ -44,11 +48,29 @@ Antes de começar, você vai precisar ter as seguintes ferramentas instaladas em
 ## Como Usar
 
 1. Inicie o servidor:
+
    ```bash
    npm start
    ```
 
-2. O servidor estará rodando em `http://localhost:3000`.
+2. O servidor estará rodando em `http://localhost:3019` (ou na porta configurada pela variável `PORT`).
+
+### Painel de Controle (Interface Web)
+
+A aplicação disponibiliza um painel administrativo moderno diretamente no navegador para facilitar o gerenciamento dos dados do emulador.
+
+- **Acesso:** Abra [http://localhost:3019](http://localhost:3019) no seu navegador.
+- **Dashboard:** Visão geral do status da API (`UP`/`DOWN`) e a contagem total de registros em cada base mock.
+- **Editor Tabular (CRUD):**
+  - Navegue entre os datasets **Consignações**, **Extrato** e **Empréstimos**.
+  - Crie, edite ou remova registros individualmente de forma visual.
+- **Importador de Arquivos:**
+  - Suporta upload de arquivos **JSON** (array de objetos) ou **CSV** (delimitador `;`).
+  - Permite escolher se a importação deve adicionar registros (`append`) ou substituir todo o mock atual (`replace`).
+- **Exportação:**
+  - Baixe o estado atual de qualquer base de dados diretamente pela tela.
+
+---
 
 ### Endpoints da API
 
@@ -60,10 +82,13 @@ A API fornece os seguintes endpoints:
 - **Método:** `GET`
 - **Descrição:** Verifica a saúde da aplicação. Retorna um status `UP` se o servidor estiver rodando.
 - **Exemplo de Requisição (usando `curl`):**
+
   ```bash
-  curl "http://localhost:3000/health"
+  curl "http://localhost:3019/health"
   ```
+
 - **Exemplo de Resposta:**
+
   ```json
   {
     "status": "UP"
@@ -81,24 +106,33 @@ A API fornece os seguintes endpoints:
   - `competencia` (obrigatório): A competência da consulta no formato `YYYYMM`.
 - **Exemplos de Requisição (usando `curl`):**
   - **Consulta com sucesso:**
+
     ```bash
-    curl "http://localhost:3000/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202506"
+    curl "http://localhost:3019/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202506"
     ```
+
   - **Registros não encontrados (Erro LF):**
+
     ```bash
-    curl "http://localhost:3000/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202501"
+    curl "http://localhost:3019/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202501"
     ```
+
   - **CNPJ com DV inválido (Erro SJ):**
+
     ```bash
-    curl "http://localhost:3000/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000198&competencia=202506"
+    curl "http://localhost:3019/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000198&competencia=202506"
     ```
+
   - **Competência inválida (Erro CT):**
+
     ```bash
-    curl "http://localhost:3000/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202513"
+    curl "http://localhost:3019/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=14772711000199&competencia=202513"
     ```
+
   - **Sem procuração (Erro PR - Simulado):**
+
     ```bash
-    curl "http://localhost:3000/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=99999999000199&competencia=202506"
+    curl "http://localhost:3019/dados-consignacoes-empregador?codigoInscricao=1&numeroInscricao=99999999000199&competencia=202506"
     ```
 
 #### Consultar Extrato do Trabalhador por Empregador
@@ -112,12 +146,15 @@ A API fornece os seguintes endpoints:
   - `cpf` (obrigatório): O CPF do trabalhador.
 - **Exemplos de Requisição (usando `curl`):**
   - **Consulta com sucesso:**
+
     ```bash
-    curl "http://localhost:3000/extrato-trabalhador-empregador?codigoInscricao=1&numeroInscricao=47192091008403&cpf=68019017968"
+    curl "http://localhost:3019/extrato-trabalhador-empregador?codigoInscricao=1&numeroInscricao=47192091008403&cpf=68019017968"
     ```
+
   - **Registros não encontrados (Erro LF):**
+
     ```bash
-    curl "http://localhost:3000/extrato-trabalhador-empregador?codigoInscricao=1&numeroInscricao=47192091008403&cpf=11144477735"
+    curl "http://localhost:3019/extrato-trabalhador-empregador?codigoInscricao=1&numeroInscricao=47192091008403&cpf=11144477735"
     ```
 
 #### Consultar Empréstimo (unitário) por Empregador
@@ -132,15 +169,18 @@ A API fornece os seguintes endpoints:
   - `numeroContrato` (obrigatório): Número do contrato.
 - **Exemplos de Requisição (usando `curl`):**
   - **Consulta com sucesso:**
+
     ```bash
-    curl "http://localhost:3000/emprestimo-trabalhador?codigoInscricao=1&numeroInscricao=47192091008403&codigoSolicitante=999&numeroContrato=199912345678"
-    ```
-  - **Registros não encontrados (Erro LF):**
-    ```bash
-    curl "http://localhost:3000/emprestimo-trabalhador?codigoInscricao=1&numeroInscricao=47192091008403&codigoSolicitante=999&numeroContrato=000"
+    curl "http://localhost:3019/emprestimo-trabalhador?codigoInscricao=1&numeroInscricao=47192091008403&codigoSolicitante=999&numeroContrato=199912345678"
     ```
 
-#### Atualizar Dados Mock
+  - **Registros não encontrados (Erro LF):**
+
+    ```bash
+    curl "http://localhost:3019/emprestimo-trabalhador?codigoInscricao=1&numeroInscricao=47192091008403&codigoSolicitante=999&numeroContrato=000"
+    ```
+
+#### Atualizar Dados Mock (Bulk Update)
 
 - **URL:** `/update-mock`
 - **Método:** `POST`
@@ -151,11 +191,46 @@ A API fornece os seguintes endpoints:
     - `replace` (padrão): Substitui todo o conteúdo do arquivo mock com os dados enviados.
     - `append`: Adiciona os dados enviados aos existentes.
 - **Exemplo de Requisição (usando `curl`):**
+
   ```bash
-  curl -X POST "http://localhost:3000/update-mock?dataset=extrato&mode=append" \
+  curl -X POST "http://localhost:3019/update-mock?dataset=extrato&mode=append" \
     -H "Content-Type: application/json" \
     -d '[{ "cpf": "68019017968", "numeroInscricaoEmpregador": "47192091", "emprestimos": [] }]'
   ```
+
+#### API REST de Gerenciamento do Mock (CRUD e Utilitários)
+
+O emulador também oferece endpoints REST para o gerenciamento individual ou importação/exportação de dados das tabelas de mock (`consignacoes`, `extrato`, `emprestimo`):
+
+- **Listar todos os registros de um dataset:**
+  - **URL:** `/api/mock/:dataset` (Ex: `/api/mock/consignacoes`)
+  - **Método:** `GET`
+
+- **Inserir registro único:**
+  - **URL:** `/api/mock/:dataset`
+  - **Método:** `POST`
+  - **Corpo:** Objeto JSON contendo o registro único.
+
+- **Atualizar registro por índice:**
+  - **URL:** `/api/mock/:dataset/:index` (Ex: `/api/mock/consignacoes/0`)
+  - **Método:** `PUT`
+  - **Corpo:** Objeto JSON com a nova versão do registro.
+
+- **Excluir registro por índice:**
+  - **URL:** `/api/mock/:dataset/:index`
+  - **Método:** `DELETE`
+
+- **Importar dados em lote (JSON/CSV):**
+  - **URL:** `/api/mock/:dataset/import`
+  - **Método:** `POST`
+  - **Query Parameters:** `mode` (opcional): `replace` (padrão) para substituir ou `append` para adicionar.
+  - **Corpo:** Enviar via `multipart/form-data` contendo um arquivo no campo `file` (aceita `.json` com array de objetos ou `.csv` utilizando delimitador `;`).
+
+- **Exportar dados como JSON:**
+  - **URL:** `/api/mock/:dataset/export`
+  - **Método:** `GET`
+  - **Descrição:** Retorna o dataset completo em formato JSON com cabeçalho de download (`Content-Disposition`).
+
 ## Validações e Códigos de Erro
 
 A API implementa as seguintes validações e retorna os erros correspondentes:
@@ -191,41 +266,42 @@ Para facilitar os testes, prefixos especiais do `numeroInscricao` disparam cená
 
 Os dados de consignação são armazenados no arquivo `dados-consignacoes-mock.json`. Cada objeto no array representa um contrato de consignação com a seguinte estrutura (exemplo):
 
-  ```json
-  {
-    "ifConcessora.codigo": 908,
-    "ifConcessora.descricao": "PARATI CFI S A",
-    "contrato": 678001209,
-    "cpf": 77824324729,
-    "matricula": 9400,
-    "inscricaoEmpregador.codigo": 1,
-    "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": 14772711,
-    "nomeTrabalhador": "",
-    "nomeEmpregador": "SOS INFORMATICA",
-    "dataInicioContrato": "25/03/2025",
-    "dataFimContrato": "20/08/2026",
-    "competenciaInicioDesconto": "05/2025",
-    "competenciaFimDesconto": "07/2026",
-    "totalParcelas": 15,
-    "valorParcela": "284,41",
-    "valorEmprestimo": "4266,15",
-    "valorLiberado": "3023,82",
-    "qtdPagamentos": "",
-    "qtdEscrituracoes": "",
-    "categoriaTrabalhador.codigo": 101,
-    "categoriaTrabalhador.descricao": "Empregado - Geral, inclusive o empregado público da administração direta ou indireta contratado pela CLT",
-    "competencia": "06/2025",
-    "inscricaoEstabelecimento.codigo": 1,
-    "inscricaoEstabelecimento.descricao": "CNPJ",
-    "numeroInscricaoEstabelecimento": 14772711000199
-  }
-  ```
+```json
+{
+  "ifConcessora.codigo": 908,
+  "ifConcessora.descricao": "PARATI CFI S A",
+  "contrato": 678001209,
+  "cpf": 77824324729,
+  "matricula": 9400,
+  "inscricaoEmpregador.codigo": 1,
+  "inscricaoEmpregador.descricao": "CNPJ",
+  "numeroInscricaoEmpregador": 14772711,
+  "nomeTrabalhador": "",
+  "nomeEmpregador": "SOS INFORMATICA",
+  "dataInicioContrato": "25/03/2025",
+  "dataFimContrato": "20/08/2026",
+  "competenciaInicioDesconto": "05/2025",
+  "competenciaFimDesconto": "07/2026",
+  "totalParcelas": 15,
+  "valorParcela": "284,41",
+  "valorEmprestimo": "4266,15",
+  "valorLiberado": "3023,82",
+  "qtdPagamentos": "",
+  "qtdEscrituracoes": "",
+  "categoriaTrabalhador.codigo": 101,
+  "categoriaTrabalhador.descricao": "Empregado - Geral, inclusive o empregado público da administração direta ou indireta contratado pela CLT",
+  "competencia": "06/2025",
+  "inscricaoEstabelecimento.codigo": 1,
+  "inscricaoEstabelecimento.descricao": "CNPJ",
+  "numeroInscricaoEstabelecimento": 14772711000199
+}
+```
 
 ## Dependências
 
 As dependências do projeto estão listadas no arquivo `package.json`:
+
 - `express`: Framework web para Node.js.
 - `multer`: Middleware para manipulação de `multipart/form-data`.
 - `csv-parser`: Parser de streaming de CSV.
-- `validator.js`: Módulo local com funções de validação de CPF/CNPJ.
+- `validator.js`: Módulo local com funções de validação de CPF/CNPJ.
