@@ -1,0 +1,768 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "creditoTrabalhadorEmpregador",
+    "description" : "API do Crédito Trabalhador para Empregadores - Build em: 28/05/2026 15:57:06",
+    "version" : "v1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://hapibancos.dataprev.gov.br/credito-trabalhador-empregador/v1.0.0"
+  } ],
+  "security" : [ {
+    "api_key" : [ ]
+  } ],
+  "paths" : {
+    "/extrato-trabalhador-empregador" : {
+      "get" : {
+        "tags" : [ "Integrações Externas (Empresas)" ],
+        "summary" : "Consulta extrato de dados de Trabalhador pelo empregador",
+        "description" : "Serviço de Consulta extrato de dados do Trabalhador pelo empregador",
+        "operationId" : "consultarExtratoPeloEmpregador",
+        "parameters" : [ {
+          "name" : "codigoInscricao",
+          "in" : "query",
+          "description" : "Codigo de Inscrição do Empregador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "Codigo de Inscrição do Empregador",
+            "format" : "int32",
+            "example" : 1
+          },
+          "example" : 1
+        }, {
+          "name" : "numeroInscricao",
+          "in" : "query",
+          "description" : "Número de Inscrição do Empregador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "pattern" : "^(.{8}|.{14})$",
+            "type" : "string",
+            "description" : "Número de Inscrição do Empregador",
+            "example" : "47192091008403"
+          },
+          "example" : 47192091008403
+        }, {
+          "name" : "cpf",
+          "in" : "query",
+          "description" : "CPF do Trabalhador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "CPF do Trabalhador",
+            "format" : "int64",
+            "example" : 68019017968
+          },
+          "example" : 68019017968
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Consulta efetuada",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DadosTrabalhadorExtratoEmpregadorFlattenedResponse"
+                  }
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "Erro na operação solicitada",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ListaErrosResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ],
+        "x-auth-type" : "None",
+        "x-throttling-tier" : "Unlimited"
+      }
+    },
+    "/emprestimo-trabalhador" : {
+      "get" : {
+        "tags" : [ "Integrações Externas (Empresas)" ],
+        "summary" : "Consulta de Emprestimo pelo empregador",
+        "description" : "Servico de Consulta contrato de Emprestimo pelo empregador",
+        "operationId" : "consultarContratoEmpregador",
+        "parameters" : [ {
+          "name" : "codigoInscricao",
+          "in" : "query",
+          "description" : "Tipo de Inscrição do Empregador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "Tipo de Inscrição do Empregador",
+            "format" : "int32",
+            "example" : 1
+          },
+          "example" : 1
+        }, {
+          "name" : "numeroInscricao",
+          "in" : "query",
+          "description" : "Número de Inscrição do Empregador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "pattern" : "^(.{8}|.{14})$",
+            "type" : "string",
+            "description" : "Número de Inscrição do Empregador",
+            "example" : "47192091008403"
+          },
+          "example" : 47192091008403
+        }, {
+          "name" : "codigoSolicitante",
+          "in" : "query",
+          "description" : "Código do Solicitante (CBC)",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "Código do Solicitante (CBC)",
+            "format" : "int32",
+            "example" : 999
+          },
+          "example" : 999
+        }, {
+          "name" : "numeroContrato",
+          "in" : "query",
+          "description" : "Número de Contrato",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Número de Contrato",
+            "example" : "199912345678"
+          },
+          "example" : 199912345678
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Operacao efetuada",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConsultaEmprestimoTrabEmpregadorFlattenedResponse"
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "Erro na Operacao solicitada",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ListaErrosResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ],
+        "x-auth-type" : "None",
+        "x-throttling-tier" : "Unlimited"
+      }
+    },
+    "/dados-consignacoes-empregador" : {
+      "get" : {
+        "tags" : [ "Integrações Externas (Empresas)" ],
+        "summary" : "Consulta consignações pelo empregador",
+        "description" : "Serviço de Consulta de consignações a serem descontadas pelo Empregador",
+        "operationId" : "consultaConsignacoesEmpregador",
+        "parameters" : [ {
+          "name" : "codigoInscricao",
+          "in" : "query",
+          "description" : "Tipo de Inscrição do Empregador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "description" : "Tipo de Inscrição do Empregador",
+            "format" : "int32",
+            "example" : 1
+          },
+          "example" : 1
+        }, {
+          "name" : "numeroInscricao",
+          "in" : "query",
+          "description" : "Número de Inscrição do Empregador",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "pattern" : "^(.{8}|.{14})$",
+            "type" : "string",
+            "description" : "Número de Inscrição do Empregador",
+            "example" : "47192091008403"
+          },
+          "example" : 47192091008403
+        }, {
+          "name" : "competencia",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Consulta efetuada",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ConsultaConsignacoesTrabEmpregadorFlattenedResponse"
+                  }
+                }
+              }
+            }
+          },
+          "412" : {
+            "description" : "Erro na Operacao solicitada",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ListaErrosResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ],
+        "x-auth-type" : "None",
+        "x-throttling-tier" : "Unlimited"
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "DadosTrabalhadorExtratoEmpregadorFlattenedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "emprestimos" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EmprestimoTrabalhadorExtratoEmpregadorFlattenedResponse"
+            }
+          },
+          "cpf" : {
+            "type" : "string",
+            "description" : "CPF do Trabalhador",
+            "example" : "68019017968"
+          },
+          "matricula" : {
+            "type" : "string",
+            "description" : "Matrícula do Trabalhador",
+            "example" : "CONSIGNADO01"
+          },
+          "inscricaoEmpregador.codigo" : {
+            "type" : "integer",
+            "description" : "Código do tipo de inscrição do empregador",
+            "format" : "int32",
+            "example" : 1
+          },
+          "inscricaoEmpregador.descricao" : {
+            "type" : "string",
+            "description" : "Descrição do tipo de inscrição do empregador",
+            "example" : "CNPJ"
+          },
+          "numeroInscricaoEmpregador" : {
+            "type" : "string",
+            "description" : "Número de Inscrição do Empregador",
+            "example" : "47192091008403"
+          },
+          "nomeTrabalhador" : {
+            "type" : "string",
+            "description" : "Nome do Trabalhador",
+            "example" : "Trabalhador fulano de tal"
+          },
+          "nomeEmpregador" : {
+            "type" : "string",
+            "description" : "Nome do Empregador",
+            "example" : "Empregador XYZ LTDA."
+          }
+        }
+      },
+      "EmprestimoTrabalhadorExtratoEmpregadorFlattenedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "ifConcessora.codigo" : {
+            "type" : "integer",
+            "description" : "Código da instituição financeira concessionária",
+            "format" : "int32",
+            "example" : 999
+          },
+          "ifConcessora.descricao" : {
+            "type" : "string",
+            "description" : "Descrição da instituição financeira concessionária",
+            "example" : "Banco XYZ"
+          },
+          "contrato" : {
+            "type" : "string",
+            "description" : "Número de Contrato",
+            "example" : "199912345678"
+          },
+          "situacaoEmprestimo.codigo" : {
+            "type" : "integer",
+            "description" : "Código da situação do emprestimo",
+            "format" : "int32",
+            "example" : 0
+          },
+          "situacaoEmprestimo.descricao" : {
+            "type" : "string",
+            "description" : "Descrição da situação do emprestimo",
+            "example" : "Ativo"
+          },
+          "competenciaInicioDesconto" : {
+            "type" : "string",
+            "description" : "Competência de início do desconto",
+            "format" : "MM/yyyy",
+            "example" : "01/2026"
+          },
+          "competenciaFimDesconto" : {
+            "type" : "string",
+            "description" : "Competência de fim do desconto",
+            "format" : "MM/yyyy",
+            "example" : "03/2026"
+          },
+          "dataInicioContrato" : {
+            "type" : "string",
+            "description" : "Data de Início do Contrato",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2026"
+          },
+          "dataFimContrato" : {
+            "type" : "string",
+            "description" : "Data de Fim do Contrato",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2027"
+          },
+          "totalParcelas" : {
+            "type" : "integer",
+            "description" : "Quantidade de parcelas",
+            "format" : "int32",
+            "example" : 12
+          },
+          "valorParcela" : {
+            "type" : "number",
+            "description" : "Valor parcela",
+            "example" : 350
+          },
+          "valorEmprestimo" : {
+            "type" : "number",
+            "description" : "Valor Emprestimo",
+            "example" : 3500
+          },
+          "valorLiberado" : {
+            "type" : "number",
+            "description" : "Valor Liberado",
+            "example" : 2500
+          },
+          "valorSaldoDevedor" : {
+            "type" : "number",
+            "description" : "Valor do saldo devedor atual",
+            "example" : 551
+          },
+          "garantia.temGarantias" : {
+            "type" : "boolean",
+            "description" : "Indicador se foi utilizado FGTS como garantia",
+            "example" : true
+          },
+          "garantia.valorSaldoDisponivelGarantiaFgts" : {
+            "type" : "number",
+            "description" : "Valor do saldo FGTS para garantia",
+            "example" : 98587.56
+          },
+          "garantia.valorMultaRescisoriaGarantiaFgts" : {
+            "type" : "number",
+            "description" : "Valor de garantia relacionado à multa do FGTS",
+            "example" : 5500.45
+          },
+          "garantia.percVerbaRescisoriaGarantia" : {
+            "type" : "number",
+            "description" : "Percentual da verba rescisória para garantia (até 35%)",
+            "example" : 25
+          }
+        }
+      },
+      "ErroResponse" : {
+        "title" : "ErroProcessamentoResponse",
+        "type" : "object",
+        "properties" : {
+          "codigo" : {
+            "type" : "string",
+            "description" : "Código de erro"
+          },
+          "mensagem" : {
+            "type" : "string",
+            "description" : "Mensagem de erro"
+          }
+        },
+        "description" : "Lista de códigos e mensagens de erro"
+      },
+      "ListaErrosResponse" : {
+        "type" : "object",
+        "properties" : {
+          "erros" : {
+            "type" : "array",
+            "description" : "Lista de códigos e mensagens de erro",
+            "items" : {
+              "$ref" : "#/components/schemas/ErroResponse"
+            }
+          }
+        }
+      },
+      "ConsultaEmprestimoTrabEmpregadorFlattenedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "ifConcessora.codigo" : {
+            "type" : "integer",
+            "description" : "Código da instituição financeira concessionária",
+            "format" : "int32",
+            "example" : 999
+          },
+          "ifConcessora.descricao" : {
+            "type" : "string",
+            "description" : "Descrição da instituição financeira concessionária",
+            "example" : "Banco XYZ"
+          },
+          "contrato" : {
+            "type" : "string",
+            "description" : "Número de Contrato",
+            "example" : "199912345678"
+          },
+          "cpf" : {
+            "type" : "string",
+            "description" : "CPF do Trabalhador",
+            "example" : "68019017968"
+          },
+          "matricula" : {
+            "type" : "string",
+            "description" : "Matrícula do Trabalhador",
+            "example" : "CONSIGNADO01"
+          },
+          "inscricaoEmpregador.codigo" : {
+            "type" : "integer",
+            "description" : "Código do tipo de inscrição do empregador",
+            "format" : "int32",
+            "example" : 1
+          },
+          "inscricaoEmpregador.descricao" : {
+            "type" : "string",
+            "description" : "Descrição do tipo de inscrição do empregador",
+            "example" : "CNPJ"
+          },
+          "numeroInscricaoEmpregador" : {
+            "type" : "string",
+            "description" : "Número de Inscrição do Empregador",
+            "example" : "47192091008403"
+          },
+          "nomeTrabalhador" : {
+            "type" : "string",
+            "description" : "Nome do Trabalhador",
+            "example" : "Trabalhador fulano de tal"
+          },
+          "nomeEmpregador" : {
+            "type" : "string",
+            "description" : "Nome do Empregador",
+            "example" : "Empregador XYZ LTDA."
+          },
+          "dataInicioContrato" : {
+            "type" : "string",
+            "description" : "Data de Início do Contrato",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2026"
+          },
+          "dataFimContrato" : {
+            "type" : "string",
+            "description" : "Data de Fim do Contrato",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2027"
+          },
+          "competenciaInicioDesconto" : {
+            "type" : "string",
+            "description" : "Competência de início do desconto",
+            "format" : "MM/yyyy",
+            "example" : "01/2026"
+          },
+          "competenciaFimDesconto" : {
+            "type" : "string",
+            "description" : "Competência de fim do desconto",
+            "format" : "MM/yyyy",
+            "example" : "03/2026"
+          },
+          "situacaoEmprestimo.codigo" : {
+            "type" : "integer",
+            "description" : "Código da situação do emprestimo",
+            "format" : "int32",
+            "example" : 0
+          },
+          "situacaoEmprestimo.descricao" : {
+            "type" : "string",
+            "description" : "Descrição da situação do emprestimo",
+            "example" : "Ativo"
+          },
+          "totalParcelas" : {
+            "type" : "integer",
+            "description" : "Quantidade de parcelas",
+            "format" : "int32",
+            "example" : 12
+          },
+          "valorParcela" : {
+            "type" : "number",
+            "description" : "Valor parcela",
+            "example" : 350
+          },
+          "valorEmprestimo" : {
+            "type" : "number",
+            "description" : "Valor Emprestimo",
+            "example" : 3500
+          },
+          "valorLiberado" : {
+            "type" : "number",
+            "description" : "Valor Liberado",
+            "example" : 2500
+          },
+          "valorSaldoDevedor" : {
+            "type" : "number",
+            "description" : "Valor do saldo devedor atual",
+            "example" : 551
+          },
+          "garantia.temGarantias" : {
+            "type" : "boolean",
+            "description" : "Indicador se foi utilizado FGTS como garantia",
+            "example" : true
+          },
+          "garantia.valorSaldoDisponivelGarantiaFgts" : {
+            "type" : "number",
+            "description" : "Valor do saldo FGTS para garantia",
+            "example" : 98587.56
+          },
+          "garantia.valorMultaRescisoriaGarantiaFgts" : {
+            "type" : "number",
+            "description" : "Valor de garantia relacionado à multa do FGTS",
+            "example" : 5500.45
+          },
+          "garantia.percVerbaRescisoriaGarantia" : {
+            "type" : "number",
+            "description" : "Percentual da verba rescisória para garantia (até 35%)",
+            "example" : 25
+          }
+        }
+      },
+      "ConsultaConsignacoesTrabEmpregadorFlattenedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "ifConcessora.codigo" : {
+            "type" : "integer",
+            "description" : "Código da instituição financeira concessionária",
+            "format" : "int32",
+            "example" : 999
+          },
+          "ifConcessora.descricao" : {
+            "type" : "string",
+            "description" : "Descrição da instituição financeira concessionária",
+            "example" : "Banco XYZ"
+          },
+          "contrato" : {
+            "type" : "string",
+            "description" : "Número de Contrato",
+            "example" : "199912345678"
+          },
+          "cpf" : {
+            "type" : "string",
+            "description" : "CPF do Trabalhador",
+            "example" : "68019017968"
+          },
+          "matricula" : {
+            "type" : "string",
+            "description" : "Matrícula do Trabalhador",
+            "example" : "CONSIGNADO01"
+          },
+          "inscricaoEmpregador.codigo" : {
+            "type" : "integer",
+            "description" : "Código do tipo de inscrição do empregador",
+            "format" : "int32",
+            "example" : 1
+          },
+          "inscricaoEmpregador.descricao" : {
+            "type" : "string",
+            "description" : "Descrição do tipo de inscrição do empregador",
+            "example" : "CNPJ"
+          },
+          "numeroInscricaoEmpregador" : {
+            "type" : "string",
+            "description" : "Número de Inscrição do Empregador",
+            "example" : "66106660000160"
+          },
+          "inscricaoEstabelecimento.codigo" : {
+            "type" : "integer",
+            "description" : "Código do tipo de inscrição do estabelecimento",
+            "format" : "int32",
+            "example" : 1
+          },
+          "inscricaoEstabelecimento.descricao" : {
+            "type" : "string",
+            "description" : "Descrição do tipo de inscrição do estabelecimento",
+            "example" : "CNPJ"
+          },
+          "numeroInscricaoEstabelecimento" : {
+            "type" : "string",
+            "description" : "Número de inscrição do estabelecimento",
+            "example" : "47192091008403"
+          },
+          "nomeTrabalhador" : {
+            "type" : "string",
+            "description" : "Nome do Trabalhador",
+            "example" : "Trabalhador fulano de tal"
+          },
+          "nomeEmpregador" : {
+            "type" : "string",
+            "description" : "Nome do Empregador",
+            "example" : "Empregador XYZ LTDA."
+          },
+          "dataAdmissao" : {
+            "type" : "string",
+            "description" : "Data de Admissão do trabalhador",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2020"
+          },
+          "categoriaTrabalhador.codigo" : {
+            "type" : "integer",
+            "description" : "Código da categoria do trabalhador",
+            "format" : "int32",
+            "example" : 101
+          },
+          "categoriaTrabalhador.descricao" : {
+            "type" : "string",
+            "description" : "Descrição da categoria do trabalhador",
+            "example" : "Empregado - Geral, inclusive o empregado público da administração direta ou indireta contratado pela CLT"
+          },
+          "dataInicioContrato" : {
+            "type" : "string",
+            "description" : "Data de Início do Contrato",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2026"
+          },
+          "dataFimContrato" : {
+            "type" : "string",
+            "description" : "Data de Fim do Contrato",
+            "format" : "dd/MM/yyyy",
+            "example" : "28/02/2027"
+          },
+          "competenciaInicioDesconto" : {
+            "type" : "string",
+            "description" : "Competência de início do desconto",
+            "format" : "MM/yyyy",
+            "example" : "01/2026"
+          },
+          "competenciaFimDesconto" : {
+            "type" : "string",
+            "description" : "Competência de fim do desconto",
+            "format" : "MM/yyyy",
+            "example" : "03/2026"
+          },
+          "totalParcelas" : {
+            "type" : "integer",
+            "description" : "Quantidade de parcelas",
+            "format" : "int32",
+            "example" : 12
+          },
+          "valorParcela" : {
+            "type" : "number",
+            "description" : "Valor parcela",
+            "example" : 350
+          },
+          "valorEmprestimo" : {
+            "type" : "number",
+            "description" : "Valor Emprestimo",
+            "example" : 3500
+          },
+          "valorLiberado" : {
+            "type" : "number",
+            "description" : "Valor Liberado",
+            "example" : 2500
+          },
+          "valorSaldoDevedor" : {
+            "type" : "number",
+            "description" : "Valor do saldo devedor atual",
+            "example" : 551
+          },
+          "garantia.temGarantias" : {
+            "type" : "boolean",
+            "description" : "Indicador se foi utilizado FGTS como garantia",
+            "example" : true
+          },
+          "garantia.valorSaldoDisponivelGarantiaFgts" : {
+            "type" : "number",
+            "description" : "Valor do saldo FGTS para garantia",
+            "example" : 98587.56
+          },
+          "garantia.valorMultaRescisoriaGarantiaFgts" : {
+            "type" : "number",
+            "description" : "Valor de garantia relacionado à multa do FGTS",
+            "example" : 5500.45
+          },
+          "garantia.percVerbaRescisoriaGarantia" : {
+            "type" : "number",
+            "description" : "Percentual da verba rescisória para garantia (até 35%)",
+            "example" : 25
+          },
+          "qtdPagamentos" : {
+            "type" : "integer",
+            "description" : "Quantidade de pagamentos",
+            "format" : "int32",
+            "example" : 3
+          },
+          "qtdEscrituracoes" : {
+            "type" : "integer",
+            "description" : "Quantidade de escrituracoes",
+            "format" : "int32",
+            "example" : 2
+          },
+          "competencia" : {
+            "type" : "string",
+            "description" : "Competência fechada",
+            "format" : "MM/yyyy",
+            "example" : "03/2026"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "api_key" : {
+        "type" : "apiKey",
+        "name" : "apikey",
+        "in" : "header"
+      }
+    }
+  }
+}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interface de gerenciamento de dados mock para o Emulador de API de Crédito ao Trabalhador">
+  <title>Emulador Crédito Trabalhador — Painel de Controle</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Mobile menu toggle -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+
+  <div class="app-layout">
+    <!-- ====== SIDEBAR ====== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">🏦</div>
+          <div class="sidebar-logo-text">
+            <h1>CréditoTrab</h1>
+            <span>Emulador v1.0</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Geral</div>
+        <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+          <span class="nav-item-icon">📊</span>
+          <span>Dashboard</span>
+        </div>
+
+        <div class="sidebar-section-label">Datasets</div>
+        <div class="nav-item" data-page="consignacoes" onclick="navigateTo('consignacoes')">
+          <span class="nav-item-icon">📋</span>
+          <span>Consignações</span>
+          <span class="nav-item-badge" id="badge-consignacoes">0</span>
+        </div>
+        <div class="nav-item" data-page="extrato" onclick="navigateTo('extrato')">
+          <span class="nav-item-icon">📄</span>
+          <span>Extrato Trabalhador</span>
+          <span class="nav-item-badge" id="badge-extrato">0</span>
+        </div>
+        <div class="nav-item" data-page="emprestimo" onclick="navigateTo('emprestimo')">
+          <span class="nav-item-icon">💳</span>
+          <span>Empréstimo</span>
+          <span class="nav-item-badge" id="badge-emprestimo">0</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="server-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Servidor ativo</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="main-content">
+
+      <!-- ===== DASHBOARD PAGE ===== -->
+      <div class="page-view active" id="page-dashboard">
+        <div class="page-header">
+          <h2>Dashboard</h2>
+          <p>Visão geral dos dados mock do emulador</p>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="stat-card" onclick="navigateTo('consignacoes')">
+            <div class="stat-card-header">
+              <div class="stat-card-icon consignacoes">📋</div>
+            </div>
+            <div class="stat-card-value" id="stat-consignacoes">0</div>
+            <div class="stat-card-label">Consignações</div>
+          </div>
+
+          <div class="stat-card" onclick="navigateTo('extrato')">
+            <div class="stat-card-header">
+              <div class="stat-card-icon extrato">📄</div>
+            </div>
+            <div class="stat-card-value" id="stat-extrato">0</div>
+            <div class="stat-card-label">Extratos de Trabalhador</div>
+          </div>
+
+          <div class="stat-card" onclick="navigateTo('emprestimo')">
+            <div class="stat-card-header">
+              <div class="stat-card-icon emprestimo">💳</div>
+            </div>
+            <div class="stat-card-value" id="stat-emprestimo">0</div>
+            <div class="stat-card-label">Empréstimos</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-card-icon server">⚡</div>
+            </div>
+            <div class="stat-card-value" id="stat-status">—</div>
+            <div class="stat-card-label">Status do Servidor</div>
+          </div>
+        </div>
+
+        <div class="page-header">
+          <h2>Endpoints da API</h2>
+          <p>Referência rápida dos endpoints disponíveis</p>
+        </div>
+
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Endpoint</th>
+                  <th>Descrição</th>
+                  <th>Parâmetros</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-success">GET</span></td>
+                  <td>/health</td>
+                  <td>Health check do servidor</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-success">GET</span></td>
+                  <td>/dados-consignacoes-empregador</td>
+                  <td>Consulta dados de consignações</td>
+                  <td>codigoInscricao, numeroInscricao, competencia</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-success">GET</span></td>
+                  <td>/extrato-trabalhador-empregador</td>
+                  <td>Consulta extrato do trabalhador</td>
+                  <td>codigoInscricao, numeroInscricao, cpf</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-success">GET</span></td>
+                  <td>/emprestimo-trabalhador</td>
+                  <td>Consulta empréstimo unitário</td>
+                  <td>codigoInscricao, numeroInscricao, codigoSolicitante, numeroContrato</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-info">POST</span></td>
+                  <td>/update-mock</td>
+                  <td>Atualiza mock via JSON array</td>
+                  <td>dataset, mode</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DATASET PAGE (rendered dynamically) ===== -->
+      <div class="page-view" id="page-consignacoes"></div>
+      <div class="page-view" id="page-extrato"></div>
+      <div class="page-view" id="page-emprestimo"></div>
+
+    </main>
+  </div>
+
+  <!-- ====== MODAL OVERLAY (CRUD + Import) ====== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContainer">
+      <div class="modal-header">
+        <h3 id="modalTitle">Título</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <!-- ====== CONFIRM DIALOG ====== -->
+  <div class="modal-overlay" id="confirmOverlay">
+    <div class="modal confirm-dialog">
+      <div class="modal-body">
+        <span class="confirm-icon" id="confirmIcon">⚠️</span>
+        <div class="confirm-message" id="confirmMessage">Tem certeza?</div>
+        <div class="confirm-sub" id="confirmSub">Esta ação não pode ser desfeita.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+        <button class="btn btn-danger" id="confirmBtn" onclick="confirmAction()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TOAST CONTAINER ====== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
