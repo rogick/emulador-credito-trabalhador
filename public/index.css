@@ -629,6 +629,10 @@ body {
   transform: translateY(0) scale(1);
 }
 
+.modal.modal-wide {
+  max-width: 960px;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -967,6 +971,169 @@ body {
 .view-toggle-btn.active {
   background: var(--accent-primary);
   color: #fff;
+}
+
+/* --- Sub-CRUD Empréstimos --- */
+.subcrud-container {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.subcrud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.subcrud-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subcrud-header-left h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.3px;
+}
+
+.subcrud-count {
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--accent-primary);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.subcrud-table-wrap {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.subcrud-table-scroll {
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.subcrud-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.subcrud-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.subcrud-table th {
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.68rem;
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.subcrud-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(108, 99, 255, 0.06);
+  color: var(--text-primary);
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subcrud-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.subcrud-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.subcrud-table .subcrud-actions {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.subcrud-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.subcrud-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  opacity: 0.35;
+}
+
+.subcrud-empty p {
+  font-size: 0.82rem;
+}
+
+/* Sub-CRUD inline form (add/edit emprestimo) */
+.subcrud-form-overlay {
+  margin-top: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-focused);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  animation: subcrud-slide-in 0.25s ease;
+}
+
+@keyframes subcrud-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.subcrud-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(108, 99, 255, 0.06);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.subcrud-form-header h5 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.subcrud-form-body {
+  padding: 16px;
+}
+
+.subcrud-form-body .form-grid {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.subcrud-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 /* --- Scrollbar --- */

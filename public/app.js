@@ -66,12 +66,44 @@ const DATASETS = {
 };
 
 // ============================================================
+// Campos do sub-CRUD de empréstimos dentro do Extrato
+// ============================================================
+const EMPRESTIMO_SUBCRUD_FIELDS = [
+  'ifConcessora.codigo', 'ifConcessora.descricao', 'contrato',
+  'situacaoEmprestimo.codigo', 'situacaoEmprestimo.descricao',
+  'competenciaInicioDesconto', 'competenciaFimDesconto',
+  'dataInicioContrato', 'dataFimContrato',
+  'totalParcelas', 'valorParcela', 'valorEmprestimo', 'valorLiberado', 'valorSaldoDevedor',
+  'garantia.temGarantias', 'garantia.valorSaldoDisponivelGarantiaFgts',
+  'garantia.valorMultaRescisoriaGarantiaFgts', 'garantia.percVerbaRescisoriaGarantia'
+];
+
+// Colunas resumidas para exibição na tabela do sub-CRUD
+const EMPRESTIMO_SUBCRUD_KEY_COLS = [
+  'ifConcessora.descricao', 'contrato', 'situacaoEmprestimo.descricao',
+  'valorParcela', 'totalParcelas', 'valorEmprestimo'
+];
+
+// Campos do extrato SEM empréstimos (para o formulário principal)
+const EXTRATO_MAIN_FIELDS = [
+  'cpf', 'matricula', 'inscricaoEmpregador.codigo', 'inscricaoEmpregador.descricao',
+  'numeroInscricaoEmpregador', 'nomeTrabalhador', 'nomeEmpregador'
+];
+
+// ============================================================
 // Estado da aplicação
 // ============================================================
 let currentPage = 'dashboard';
 let dataCache = {};           // { consignacoes: [...], extrato: [...], emprestimo: [...] }
 let searchFilters = {};       // { consignacoes: 'searchterm', ... }
 let confirmCallback = null;   // callback para o diálogo de confirmação
+
+// Sub-CRUD state for emprestimos
+let subcrudEmprestimos = [];       // current list of emprestimos being edited
+let subcrudEditingIndex = -1;      // -1 = not editing, >= 0 = editing that loan index
+let subcrudIsAdding = false;       // true when adding a new emprestimo
+let subcrudCurrentDataset = null;  // 'create' or 'edit'
+let subcrudParentIndex = -1;       // parent record index (for edit mode)
 
 // ============================================================
 // API Helper
@@ -339,7 +371,17 @@ function handleSearch(dataset, value) {
 // --- CREATE ---
 function openCreateModal(dataset) {
   const config = DATASETS[dataset];
-  const fields = getFieldsForDataset(dataset);
+  const isExtrato = dataset === 'extrato';
+  const fields = isExtrato ? EXTRATO_MAIN_FIELDS : getFieldsForDataset(dataset);
+
+  // Initialize sub-CRUD state for extrato
+  if (isExtrato) {
+    subcrudEmprestimos = [];
+    subcrudEditingIndex = -1;
+    subcrudIsAdding = false;
+    subcrudCurrentDataset = 'create';
+    subcrudParentIndex = -1;
+  }
 
   openModal(`Adicionar Registro — ${config.label}`, () => {
     const formHtml = `
@@ -348,25 +390,24 @@ function openCreateModal(dataset) {
           const escF = escapeHtml(f);
           const escLabel = escapeHtml(formatColumnName(f));
           return `
-            <div class="form-group${f === 'emprestimos' ? ' full-width' : ''}">
+            <div class="form-group">
               <label for="field-${escF}">${escLabel}</label>
-              ${f === 'emprestimos'
-                ? `<textarea id="field-${escF}" placeholder='[{"ifConcessora.codigo": 104, ...}]'></textarea>`
-                : `<input type="text" id="field-${escF}" placeholder="${escF}">`
-              }
+              <input type="text" id="field-${escF}" placeholder="${escF}">
             </div>`;
         }).join('')}
       </div>
+      ${isExtrato ? renderSubcrudEmprestimos() : ''}
     `;
     return formHtml;
   }, [
     { label: 'Cancelar', class: 'btn-secondary', action: () => closeModal() },
     { label: 'Criar Registro', class: 'btn-primary', action: () => handleCreate(dataset) }
-  ]);
+  ], isExtrato);
 }
 
 async function handleCreate(dataset) {
-  const fields = getFieldsForDataset(dataset);
+  const isExtrato = dataset === 'extrato';
+  const fields = isExtrato ? EXTRATO_MAIN_FIELDS : getFieldsForDataset(dataset);
   const record = {};
 
   for (const f of fields) {
@@ -374,17 +415,12 @@ async function handleCreate(dataset) {
     if (!el) continue;
     const val = el.value.trim();
     if (val === '') continue;
+    record[f] = parseFieldValue(val);
+  }
 
-    if (f === 'emprestimos') {
-      try {
-        record[f] = JSON.parse(val);
-      } catch {
-        toast('Campo "emprestimos" deve ser um JSON válido.', 'error');
-        return;
-      }
-    } else {
-      record[f] = parseFieldValue(val);
-    }
+  // Attach sub-CRUD emprestimos for extrato
+  if (isExtrato) {
+    record.emprestimos = [...subcrudEmprestimos];
   }
 
   try {
@@ -419,8 +455,20 @@ function openViewModal(dataset, index) {
 function openEditModal(dataset, index) {
   const config = DATASETS[dataset];
   const item = dataCache[dataset][index];
-  // Use actual keys from the item, merged with allFields for completeness
-  const fields = [...new Set([...Object.keys(item), ...config.allFields])];
+  const isExtrato = dataset === 'extrato';
+
+  // For extrato, separate main fields from emprestimos
+  let fields;
+  if (isExtrato) {
+    fields = [...new Set([...Object.keys(item).filter(k => k !== 'emprestimos'), ...EXTRATO_MAIN_FIELDS])];
+    subcrudEmprestimos = Array.isArray(item.emprestimos) ? JSON.parse(JSON.stringify(item.emprestimos)) : [];
+    subcrudEditingIndex = -1;
+    subcrudIsAdding = false;
+    subcrudCurrentDataset = 'edit';
+    subcrudParentIndex = index;
+  } else {
+    fields = [...new Set([...Object.keys(item), ...config.allFields])];
+  }
 
   openModal(`Editar Registro — ${config.label} #${index}`, () => {
     const formHtml = `
@@ -441,15 +489,17 @@ function openEditModal(dataset, index) {
             </div>`;
         }).join('')}
       </div>
+      ${isExtrato ? renderSubcrudEmprestimos() : ''}
     `;
     return formHtml;
   }, [
     { label: 'Cancelar', class: 'btn-secondary', action: () => closeModal() },
     { label: 'Salvar Alterações', class: 'btn-primary', action: () => handleEdit(dataset, index, fields, item) }
-  ]);
+  ], isExtrato);
 }
 
 async function handleEdit(dataset, index, fields, originalItem) {
+  const isExtrato = dataset === 'extrato';
   const record = {};
 
   for (const f of fields) {
@@ -476,6 +526,11 @@ async function handleEdit(dataset, index, fields, originalItem) {
     }
   }
 
+  // Attach sub-CRUD emprestimos for extrato
+  if (isExtrato) {
+    record.emprestimos = [...subcrudEmprestimos];
+  }
+
   try {
     const result = await api.put(`/api/mock/${dataset}/${index}`, record);
     if (result.erro) {
@@ -489,6 +544,164 @@ async function handleEdit(dataset, index, fields, originalItem) {
   } catch (err) {
     toast('Erro ao atualizar registro: ' + err.message, 'error');
   }
+}
+
+// ============================================================
+// Sub-CRUD: Empréstimos (dentro do formulário Extrato)
+// ============================================================
+
+/**
+ * Renders the full sub-CRUD HTML for emprestimos.
+ */
+function renderSubcrudEmprestimos() {
+  const items = subcrudEmprestimos;
+  return `
+    <div class="subcrud-container" id="subcrudContainer">
+      <div class="subcrud-header">
+        <div class="subcrud-header-left">
+          <h4>💳 Empréstimos</h4>
+          <span class="subcrud-count">${items.length}</span>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="subcrudStartAdd()">
+          ＋ Adicionar Empréstimo
+        </button>
+      </div>
+
+      <div class="subcrud-table-wrap">
+        ${items.length === 0
+          ? `<div class="subcrud-empty">
+               <div class="subcrud-empty-icon">📭</div>
+               <p>Nenhum empréstimo cadastrado</p>
+             </div>`
+          : `<div class="subcrud-table-scroll">
+               <table class="subcrud-table">
+                 <thead>
+                   <tr>
+                     <th>#</th>
+                     ${EMPRESTIMO_SUBCRUD_KEY_COLS.map(c => `<th>${escapeHtml(formatColumnName(c))}</th>`).join('')}
+                     <th>Ações</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   ${items.map((emp, i) => `
+                     <tr>
+                       <td>${i}</td>
+                       ${EMPRESTIMO_SUBCRUD_KEY_COLS.map(c => `<td title="${escapeHtml(formatCellValue(emp[c]))}">${escapeHtml(formatCellValue(emp[c]))}</td>`).join('')}
+                       <td>
+                         <div class="subcrud-actions">
+                           <button class="btn btn-ghost btn-icon btn-sm" title="Editar" onclick="subcrudStartEdit(${i})">✏️</button>
+                           <button class="btn btn-ghost btn-icon btn-sm" title="Excluir" onclick="subcrudDelete(${i})">🗑️</button>
+                         </div>
+                       </td>
+                     </tr>
+                   `).join('')}
+                 </tbody>
+               </table>
+             </div>`
+        }
+      </div>
+
+      <div id="subcrudFormArea"></div>
+    </div>
+  `;
+}
+
+/**
+ * Re-renders only the sub-CRUD section inside the modal, preserving main form values.
+ */
+function refreshSubcrud() {
+  const container = document.getElementById('subcrudContainer');
+  if (!container) return;
+  // Create a temporary element to parse the new HTML
+  const temp = document.createElement('div');
+  temp.innerHTML = renderSubcrudEmprestimos();
+  container.replaceWith(temp.firstElementChild);
+}
+
+/**
+ * Renders the inline add/edit form for a single empréstimo.
+ */
+function renderSubcrudForm(title, emprestimo) {
+  const fields = EMPRESTIMO_SUBCRUD_FIELDS;
+  return `
+    <div class="subcrud-form-overlay">
+      <div class="subcrud-form-header">
+        <h5>${escapeHtml(title)}</h5>
+        <button class="btn btn-ghost btn-sm" onclick="subcrudCancelForm()">✕ Fechar</button>
+      </div>
+      <div class="subcrud-form-body">
+        <div class="form-grid">
+          ${fields.map(f => {
+            const val = emprestimo ? (emprestimo[f] ?? '') : '';
+            const escF = escapeHtml(f);
+            const escLabel = escapeHtml(formatColumnName(f));
+            return `
+              <div class="form-group">
+                <label for="subcrud-field-${escF}">${escLabel}</label>
+                <input type="text" id="subcrud-field-${escF}" value="${escapeHtml(String(val))}" placeholder="${escF}">
+              </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="subcrud-form-footer">
+        <button class="btn btn-secondary btn-sm" onclick="subcrudCancelForm()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="subcrudSaveForm()">Salvar</button>
+      </div>
+    </div>
+  `;
+}
+
+function subcrudStartAdd() {
+  subcrudIsAdding = true;
+  subcrudEditingIndex = -1;
+  const area = document.getElementById('subcrudFormArea');
+  if (area) area.innerHTML = renderSubcrudForm('Adicionar Empréstimo', null);
+}
+
+function subcrudStartEdit(idx) {
+  subcrudIsAdding = false;
+  subcrudEditingIndex = idx;
+  const emp = subcrudEmprestimos[idx];
+  const area = document.getElementById('subcrudFormArea');
+  if (area) area.innerHTML = renderSubcrudForm(`Editar Empréstimo #${idx}`, emp);
+}
+
+function subcrudCancelForm() {
+  subcrudIsAdding = false;
+  subcrudEditingIndex = -1;
+  const area = document.getElementById('subcrudFormArea');
+  if (area) area.innerHTML = '';
+}
+
+function subcrudSaveForm() {
+  const fields = EMPRESTIMO_SUBCRUD_FIELDS;
+  const record = {};
+
+  for (const f of fields) {
+    const el = document.getElementById(`subcrud-field-${f}`);
+    if (!el) continue;
+    const val = el.value.trim();
+    if (val === '') continue;
+    record[f] = parseFieldValue(val);
+  }
+
+  if (subcrudIsAdding) {
+    subcrudEmprestimos.push(record);
+    toast('Empréstimo adicionado.', 'success');
+  } else if (subcrudEditingIndex >= 0) {
+    subcrudEmprestimos[subcrudEditingIndex] = record;
+    toast('Empréstimo atualizado.', 'success');
+  }
+
+  subcrudIsAdding = false;
+  subcrudEditingIndex = -1;
+  refreshSubcrud();
+}
+
+function subcrudDelete(idx) {
+  subcrudEmprestimos.splice(idx, 1);
+  toast('Empréstimo removido.', 'info');
+  refreshSubcrud();
 }
 
 // --- DELETE ---
@@ -656,14 +869,18 @@ function exportDataset(dataset) {
 // ============================================================
 // Modal System
 // ============================================================
-function openModal(title, contentFn, buttons) {
+function openModal(title, contentFn, buttons, wide = false) {
   const overlay = document.getElementById('modalOverlay');
   const titleEl = document.getElementById('modalTitle');
   const bodyEl = document.getElementById('modalBody');
   const footerEl = document.getElementById('modalFooter');
+  const modalEl = document.getElementById('modalContainer');
 
   titleEl.textContent = title;
   bodyEl.innerHTML = contentFn();
+
+  // Apply wide class for sub-CRUD modals
+  modalEl.classList.toggle('modal-wide', wide);
 
   footerEl.innerHTML = '';
   buttons.forEach(btn => {
