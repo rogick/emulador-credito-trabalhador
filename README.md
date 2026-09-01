@@ -18,24 +18,46 @@ Este projeto é um emulador da API **Crédito Trabalhador — Dados de consigna�
 - Simular respostas de erro padronizadas (400, 412) para diferentes cenários.
 - Permitir a atualização dinâmica dos dados mock via API (substituir ou adicionar registros) ou através do Painel Web integrado (interface administrativa CRUD com suporte a importação JSON/CSV e exportação).
 
-## Pré-requisitos
+## 🚀 Instalação Rápida e Automática (Windows e Linux)
 
-Antes de começar, você vai precisar ter as seguintes ferramentas instaladas em sua máquina:
+O projeto conta com instaladores automatizados que verificam se o **Node.js** está instalado e, caso não esteja, oferecem o download e a instalação automática da versão LTS recomendada.
 
-- [Node.js](https://nodejs.org/en/) (versão 18 ou superior)
-- [npm](https://www.npmjs.com/) (geralmente vem com o Node.js)
+### 🪟 Windows
 
-## Instalação
+1. Dê um duplo clique no arquivo **`install.bat`** (ou execute no Prompt de Comando / PowerShell):
 
-1. Clone o repositório:
+   ```cmd
+   install.bat
+   ```
+
+2. O instalador verificará o Node.js e as dependências do projeto.
+3. Para iniciar a aplicação futuramente, basta dar um duplo clique em **`iniciar.bat`** (ou `run.bat`).
+
+---
+
+### 🐧 Linux
+
+1. Abra o terminal na pasta do projeto e execute:
+
+   ```bash
+   ./install.sh
+   ```
+
+   *(Caso necessário, dê permissão de execução com `chmod +x install.sh iniciar.sh`)*
+2. O instalador detectará seu gerenciador de pacotes e instalará o Node.js e as dependências.
+3. Para iniciar a aplicação futuramente, execute **`./iniciar.sh`** ou **`npm start`**.
+
+---
+
+## 🛠️ Instalação Manual
+
+Se preferir configurar manualmente:
+
+1. Tenha o [Node.js](https://nodejs.org/en/) (versão 18 ou superior) instalado.
+2. Clone o repositório e navegue até a pasta:
 
    ```bash
    git clone <URL_DO_REPOSITORIO>
-   ```
-
-2. Navegue até o diretório do projeto:
-
-   ```bash
    cd emuladorCreditoTrab
    ```
 
