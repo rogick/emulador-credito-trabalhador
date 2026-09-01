@@ -1019,10 +1019,25 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Close modals by clicking overlay
+// Popups não fecham ao clicar fora (backdrop / overlay)
 document.getElementById('modalOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeModal();
+  if (e.target === e.currentTarget) {
+    const modal = document.getElementById('modalContainer');
+    if (modal) {
+      modal.classList.remove('modal-shake');
+      void modal.offsetWidth; // Força reflow para reiniciar animação
+      modal.classList.add('modal-shake');
+    }
+  }
 });
+
 document.getElementById('confirmOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeConfirm();
+  if (e.target === e.currentTarget) {
+    const confirmModal = e.currentTarget.querySelector('.modal');
+    if (confirmModal) {
+      confirmModal.classList.remove('modal-shake');
+      void confirmModal.offsetWidth;
+      confirmModal.classList.add('modal-shake');
+    }
+  }
 });

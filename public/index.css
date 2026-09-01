@@ -633,6 +633,16 @@ body {
   max-width: 960px;
 }
 
+@keyframes modalShake {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-2px) scale(1.015); }
+  75% { transform: translateY(1px) scale(0.995); }
+}
+
+.modal.modal-shake {
+  animation: modalShake 0.25s ease-in-out;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
