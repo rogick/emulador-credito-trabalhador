@@ -86,11 +86,28 @@ A aplicação disponibiliza um painel administrativo moderno diretamente no nave
 - **Editor Tabular (CRUD):**
   - Navegue entre os datasets **Consignações**, **Extrato** e **Empréstimos**.
   - Crie, edite ou remova registros individualmente de forma visual.
+  - Ordenação por coluna, paginação, busca com filtro e seleção múltipla para exclusão em lote.
+  - A coluna **Registro** identifica cada linha pelos dados de negócio (contrato, CPF, nome), não pela posição no arquivo.
+- **Formulário agrupado:**
+  - Os campos são organizados em seções (**Chave de consulta**, Trabalhador, Empregador, Contrato, Valores, Garantia FGTS),
+    com o grupo **🔑 Chave de consulta** em destaque — são os únicos campos que determinam se o endpoint encontra o registro.
+  - Controles adequados a cada tipo: máscara de CPF/CNPJ com validação de dígito verificador, seletor de data,
+    seletor de competência, valores em formato `pt-BR` e listas fechadas para códigos de domínio.
+  - Erros aparecem abaixo do campo antes do envio; a descrição correspondente a um código é preenchida automaticamente.
+  - A disposição dos campos é declarada em `public/schema.js` — é lá que se ajusta rótulo, tipo, largura e agrupamento.
+- **Testar endpoint (`▶`):**
+  - Monta a URL real do serviço com os parâmetros daquele registro, executa a consulta e mostra o status HTTP
+    e a resposta lado a lado. Fecha o ciclo *editar → validar* sem sair da tela.
 - **Importador de Arquivos:**
   - Suporta upload de arquivos **JSON** (array de objetos) ou **CSV** (delimitador `;`).
   - Permite escolher se a importação deve adicionar registros (`append`) ou substituir todo o mock atual (`replace`).
 - **Exportação:**
   - Baixe o estado atual de qualquer base de dados diretamente pela tela.
+
+> **Normalização ao salvar:** ao gravar um registro pelo formulário, campos de inscrição (CPF, CNPJ, matrícula
+> de estabelecimento) passam a ser armazenados como *string* de dígitos e datas com ano de dois dígitos são
+> expandidas para quatro (`02/06/25` → `02/06/2025`). As consultas continuam funcionando porque o servidor
+> compara os valores com `==`.
 
 ---
 
@@ -326,4 +343,4 @@ As dependências do projeto estão listadas no arquivo `package.json`:
 - `express`: Framework web para Node.js.
 - `multer`: Middleware para manipulação de `multipart/form-data`.
 - `csv-parser`: Parser de streaming de CSV.
-- `validator.js`: Módulo local com funções de validação de CPF/CNPJ.
+- `validator.js`: Módulo local com funções de validação de CPF/CNPJ.

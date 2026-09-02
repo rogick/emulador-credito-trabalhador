@@ -10,7 +10,8 @@
 <body>
 
   <!-- Mobile menu toggle -->
-  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">☰</button>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-controls="sidebar" aria-expanded="false"
+          aria-label="Abrir menu de navegação" onclick="toggleSidebar()">☰</button>
 
   <div class="app-layout">
     <!-- ====== SIDEBAR ====== -->
@@ -27,27 +28,27 @@
 
       <nav class="sidebar-nav">
         <div class="sidebar-section-label">Geral</div>
-        <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+        <button type="button" class="nav-item active" data-page="dashboard" aria-current="page" onclick="navigateTo('dashboard')">
           <span class="nav-item-icon">📊</span>
           <span>Dashboard</span>
-        </div>
+        </button>
 
         <div class="sidebar-section-label">Datasets</div>
-        <div class="nav-item" data-page="consignacoes" onclick="navigateTo('consignacoes')">
+        <button type="button" class="nav-item" data-page="consignacoes" onclick="navigateTo('consignacoes')">
           <span class="nav-item-icon">📋</span>
           <span>Consignações</span>
           <span class="nav-item-badge" id="badge-consignacoes">0</span>
-        </div>
-        <div class="nav-item" data-page="extrato" onclick="navigateTo('extrato')">
+        </button>
+        <button type="button" class="nav-item" data-page="extrato" onclick="navigateTo('extrato')">
           <span class="nav-item-icon">📄</span>
           <span>Extrato Trabalhador</span>
           <span class="nav-item-badge" id="badge-extrato">0</span>
-        </div>
-        <div class="nav-item" data-page="emprestimo" onclick="navigateTo('emprestimo')">
+        </button>
+        <button type="button" class="nav-item" data-page="emprestimo" onclick="navigateTo('emprestimo')">
           <span class="nav-item-icon">💳</span>
           <span>Empréstimo</span>
           <span class="nav-item-badge" id="badge-emprestimo">0</span>
-        </div>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -69,29 +70,29 @@
         </div>
 
         <div class="dashboard-grid">
-          <div class="stat-card" onclick="navigateTo('consignacoes')">
+          <button type="button" class="stat-card" onclick="navigateTo('consignacoes')">
             <div class="stat-card-header">
               <div class="stat-card-icon consignacoes">📋</div>
             </div>
             <div class="stat-card-value" id="stat-consignacoes">0</div>
             <div class="stat-card-label">Consignações</div>
-          </div>
+          </button>
 
-          <div class="stat-card" onclick="navigateTo('extrato')">
+          <button type="button" class="stat-card" onclick="navigateTo('extrato')">
             <div class="stat-card-header">
               <div class="stat-card-icon extrato">📄</div>
             </div>
             <div class="stat-card-value" id="stat-extrato">0</div>
             <div class="stat-card-label">Extratos de Trabalhador</div>
-          </div>
+          </button>
 
-          <div class="stat-card" onclick="navigateTo('emprestimo')">
+          <button type="button" class="stat-card" onclick="navigateTo('emprestimo')">
             <div class="stat-card-header">
               <div class="stat-card-icon emprestimo">💳</div>
             </div>
             <div class="stat-card-value" id="stat-emprestimo">0</div>
             <div class="stat-card-label">Empréstimos</div>
-          </div>
+          </button>
 
           <div class="stat-card">
             <div class="stat-card-header">
@@ -165,11 +166,12 @@
 
   <!-- ====== MODAL OVERLAY (CRUD + Import) ====== -->
   <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modalContainer">
+    <div class="modal" id="modalContainer" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-header">
         <h3 id="modalTitle">Título</h3>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-close" type="button" aria-label="Fechar" onclick="closeModal()">&times;</button>
       </div>
+      <div class="modal-subheader" id="modalSubheader" hidden></div>
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-footer" id="modalFooter"></div>
     </div>
@@ -177,22 +179,23 @@
 
   <!-- ====== CONFIRM DIALOG ====== -->
   <div class="modal-overlay" id="confirmOverlay">
-    <div class="modal confirm-dialog">
+    <div class="modal confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmMessage" aria-describedby="confirmSub">
       <div class="modal-body">
         <span class="confirm-icon" id="confirmIcon">⚠️</span>
         <div class="confirm-message" id="confirmMessage">Tem certeza?</div>
         <div class="confirm-sub" id="confirmSub">Esta ação não pode ser desfeita.</div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
-        <button class="btn btn-danger" id="confirmBtn" onclick="confirmAction()">Confirmar</button>
+        <button class="btn btn-secondary" type="button" onclick="closeConfirm()">Cancelar</button>
+        <button class="btn btn-danger" type="button" id="confirmBtn" onclick="confirmAction()">Confirmar</button>
       </div>
     </div>
   </div>
 
   <!-- ====== TOAST CONTAINER ====== -->
-  <div class="toast-container" id="toastContainer"></div>
+  <div class="toast-container" id="toastContainer" role="region" aria-live="polite" aria-label="Notificações"></div>
 
+  <script src="schema.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
