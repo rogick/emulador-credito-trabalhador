@@ -18,7 +18,59 @@ Este projeto é um emulador da API **Crédito Trabalhador — Dados de consigna�
 - Simular respostas de erro padronizadas (400, 412) para diferentes cenários.
 - Permitir a atualização dinâmica dos dados mock via API (substituir ou adicionar registros) ou através do Painel Web integrado (interface administrativa CRUD com suporte a importação JSON/CSV e exportação).
 
-## 🚀 Instalação Rápida e Automática (Windows e Linux)
+## 📦 Como Instalar sem Clonar o Repositório (Sem Git)
+
+Se você não possui o Git instalado ou deseja instalar rapidamente sem precisar clonar o repositório, escolha uma das opções abaixo:
+
+### Opção 1: Download Direto (Navegador / Interface Gráfica)
+
+1. Baixe o código compactado em ZIP:
+   👉 **[Clique aqui para Baixar o ZIP do Projeto](https://github.com/rogick/emulador-credito-trabalhador/archive/refs/heads/master.zip)**  
+   *(ou acesse a página do repositório no GitHub, clique no botão verde **Code** e selecione **Download ZIP**)*.
+2. Extraia o arquivo `.zip` para uma pasta de sua preferência.
+3. Acesse a pasta extraída (`emulador-credito-trabalhador-master`) e execute o instalador automático:
+   - **No Windows:** Dê um duplo clique no arquivo **`install.bat`**.
+   - **No Linux:** Abra o terminal na pasta e execute **`./install.sh`** *(se necessário, execute antes `chmod +x install.sh iniciar.sh`)*.
+4. O instalador cuidará de tudo: detecta se o Node.js está presente (instalando-o se necessário) e instala as dependências.
+
+---
+
+### Opção 2: Linha de Comando Direta (One-Liner no Terminal)
+
+Você pode baixar, descompactar e rodar o instalador diretamente pelo terminal sem precisar do utilitário `git`:
+
+#### 🪟 Windows (PowerShell)
+
+Execute no PowerShell:
+
+```powershell
+Invoke-WebRequest -Uri "https://github.com/rogick/emulador-credito-trabalhador/archive/refs/heads/master.zip" -OutFile "emulador.zip"; Expand-Archive -Path "emulador.zip" -DestinationPath "."; cd "emulador-credito-trabalhador-master"; .\install.bat
+```
+
+#### 🐧 Linux (Bash / cURL)
+
+Execute no terminal:
+
+```bash
+curl -L https://github.com/rogick/emulador-credito-trabalhador/archive/refs/heads/master.tar.gz | tar -xz && cd emulador-credito-trabalhador-master && chmod +x install.sh iniciar.sh && ./install.sh
+```
+
+---
+
+### Opção 3: Via `npx degit` (Para quem já tem Node.js instalado)
+
+Caso já possua o Node.js e o npm instalados, você pode baixar a cópia limpa do projeto sem histórico git usando o `degit`:
+
+```bash
+npx degit rogick/emulador-credito-trabalhador emuladorCreditoTrab
+cd emuladorCreditoTrab
+npm install
+npm start
+```
+
+---
+
+## 🚀 Instalação Rápida e Automática (Já com a pasta do projeto)
 
 O projeto conta com instaladores automatizados que verificam se o **Node.js** está instalado e, caso não esteja, oferecem o download e a instalação automática da versão LTS recomendada.
 
@@ -49,16 +101,16 @@ O projeto conta com instaladores automatizados que verificam se o **Node.js** es
 
 ---
 
-## 🛠️ Instalação Manual
+## 🛠️ Instalação Manual (com Git Clone)
 
-Se preferir configurar manualmente:
+Se preferir configurar manualmente com Git:
 
 1. Tenha o [Node.js](https://nodejs.org/en/) (versão 18 ou superior) instalado.
 2. Clone o repositório e navegue até a pasta:
 
    ```bash
-   git clone <URL_DO_REPOSITORIO>
-   cd emuladorCreditoTrab
+   git clone https://github.com/rogick/emulador-credito-trabalhador.git
+   cd emulador-credito-trabalhador
    ```
 
 3. Instale as dependências:
