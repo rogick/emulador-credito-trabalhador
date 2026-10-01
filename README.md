@@ -22,7 +22,22 @@ Este projeto é um emulador da API **Crédito Trabalhador — Dados de consigna�
 
 Se você não possui o Git instalado ou deseja instalar rapidamente sem precisar clonar o repositório, escolha uma das opções abaixo:
 
-### Opção 1: Download Direto (Navegador / Interface Gráfica)
+### Opção 1: Download da Release com Instalador (Recomendado)
+
+A forma mais simples e recomendada é baixar o pacote oficial da release:
+
+1. Acesse a página de **👉 [Releases Oficiais no GitHub](https://github.com/rogick/emulador-credito-trabalhador/releases/latest)**.
+2. Baixe o pacote correspondente ao seu sistema operacional:
+   - **🪟 Windows:** Baixe **`emulador-credito-trabalhador-vX.Y.Z-instalador.zip`**.
+     - Descompacte o arquivo `.zip` e dê um duplo clique em **`install.bat`**.
+     - O instalador verificará o Node.js, instalará as dependências e criará um atalho na sua Área de Trabalho.
+   - **🐧 Linux:** Baixe **`emulador-credito-trabalhador-vX.Y.Z-linux.tar.gz`**.
+     - Extraia o arquivo (`tar -xzf emulador-credito-trabalhador-*.tar.gz`), acesse a pasta e execute **`./install.sh`**.
+   - **🏢 Ambientes sem Internet (Offline):** Baixe as versões com o sufixo **`-offline-`** (já incluem todas as dependências embutidas, dispensando downloads adicionais).
+
+---
+
+### Opção 2: Download Direto do Código-Fonte (ZIP do Repositório)
 
 1. Baixe o código compactado em ZIP:
    👉 **[Clique aqui para Baixar o ZIP do Projeto](https://github.com/rogick/emulador-credito-trabalhador/archive/refs/heads/master.zip)**  
@@ -35,7 +50,7 @@ Se você não possui o Git instalado ou deseja instalar rapidamente sem precisar
 
 ---
 
-### Opção 2: Linha de Comando Direta (One-Liner no Terminal)
+### Opção 3: Linha de Comando Direta (One-Liner no Terminal)
 
 Você pode baixar, descompactar e rodar o instalador diretamente pelo terminal sem precisar do utilitário `git`:
 
@@ -59,7 +74,7 @@ curl -L https://github.com/rogick/emulador-credito-trabalhador/archive/refs/head
 
 ---
 
-### Opção 3: Via `npx degit` (Para quem já tem Node.js instalado)
+### Opção 4: Via `npx degit` (Para quem já tem Node.js instalado)
 
 Caso já possua o Node.js e o npm instalados, você pode baixar a cópia limpa do projeto sem histórico git usando o `degit`:
 
@@ -380,4 +395,64 @@ As dependências do projeto estão listadas no arquivo `package.json`:
 - `express`: Framework web para Node.js.
 - `multer`: Middleware para manipulação de `multipart/form-data`.
 - `csv-parser`: Parser de streaming de CSV.
-- `validator.js`: Módulo local com funções de validação de CPF/CNPJ.
+- `validator.js`: Módulo local com funções de validação de CPF/CNPJ.
+
+---
+
+## 🏷️ Geração de Releases com Instalador
+
+O projeto conta com ferramentas automatizadas para empacotar e distribuir novas versões prontas para instalação tanto para Windows quanto para Linux.
+
+### Gerando Releases Localmente
+
+Você pode gerar os pacotes a qualquer momento utilizando o Node.js ou os scripts utilitários inclusos:
+
+| Comando | Descrição |
+| :--- | :--- |
+| `npm run release` | Gera os pacotes padrão (`.zip` para Windows e `.tar.gz` para Linux) |
+| `npm run release:offline` | Gera pacotes offline com dependências (`node_modules`) pré-instaladas |
+| `npm run release:all` | Gera ambos os pacotes (padrão e offline) de uma só vez |
+| `./gerar-release.sh` | Script shell direto para Linux/macOS |
+| `gerar-release.bat` | Script batch com duplo clique para Windows |
+
+#### Opções avançadas via linha de comando
+
+```bash
+# Especificar uma versão diferente da configurada no package.json
+node scripts/generate-release.js 1.1.0
+
+# Gerar todos os pacotes com versão customizada
+node scripts/generate-release.js --all --version 1.2.0
+
+# Ver todas as opções disponíveis
+node scripts/generate-release.js --help
+```
+
+Os artefatos são gerados na pasta `release/`:
+
+- **`emulador-credito-trabalhador-vX.Y.Z-instalador.zip`**: Pacote Windows/Multiplataforma com `install.bat`, `install.ps1`, `iniciar.bat`.
+- **`emulador-credito-trabalhador-vX.Y.Z-linux.tar.gz`**: Pacote Linux com scripts pré-configurados com permissão de execução (`0755`).
+- **`emulador-credito-trabalhador-vX.Y.Z-offline-*.zip/tar.gz`**: Pacotes com dependências de produção embutidas (ideal para redes fechadas ou sem internet).
+- **`SHA256SUMS.txt`**: Checksums de integridade criptográfica SHA-256 de todos os pacotes gerados.
+- **`RELEASE_INFO.md`**: Resumo pronto e formatado em Markdown com instruções para publicação no GitHub Releases.
+
+---
+
+### Publicação Automatizada via GitHub Actions
+
+O repositório possui uma pipeline de CI/CD configurada em `.github/workflows/release.yml`:
+
+1. **Via Tag Git:**
+   Basta criar e enviar uma tag de versão para o repositório:
+
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+   A GitHub Action será disparada automaticamente, construirá todos os pacotes (padrão e offline) e publicará uma nova Release oficial no GitHub com todos os arquivos anexados.
+
+2. **Via Interface Web do GitHub (Disparo Manual):**
+   - Acesse a aba **Actions** no repositório GitHub.
+   - Selecione o workflow **Gerar Release com Instalador**.
+   - Clique em **Run workflow**, escolha as opções desejadas (versão, pacote offline, rascunho) e execute.

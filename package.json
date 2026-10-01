@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "release": "node scripts/generate-release.js",
+    "release:offline": "node scripts/generate-release.js --offline",
+    "release:all": "node scripts/generate-release.js --all"
   },
   "keywords": [],
   "author": "",
