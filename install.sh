@@ -203,15 +203,60 @@ else
 fi
 
 echo ""
-echo -e "${CYAN}[2/3] Instalando dependências do projeto (npm install)...${NC}"
-npm install
-echo -e "${GREEN}  ✓ Dependências instaladas com sucesso!${NC}"
+echo -e "${CYAN}[2/3] Verificando dependências do projeto...${NC}"
+
+# Inicializa arquivo .env se nao existir
+if [ ! -f ".env" ] && [ -f ".env.example" ]; then
+    cp .env.example .env
+    echo -e "${GREEN}  ✓ Arquivo de configuração .env inicializado.${NC}"
+fi
+
+if [ -d "node_modules" ]; then
+    echo -e "${GREEN}  ✓ Dependências já presentes (pasta node_modules encontrada).${NC}"
+else
+    echo -e "${CYAN}  ➜ Instalando dependências (npm install)...${NC}"
+    npm install --omit=dev
+    echo -e "${GREEN}  ✓ Dependências instaladas com sucesso!${NC}"
+fi
 
 echo ""
-echo -e "${CYAN}[3/3] Configurando scripts de execução...${NC}"
+echo -e "${CYAN}[3/3] Configurando permissões e atalhos...${NC}"
 chmod +x "$PROJECT_DIR/iniciar.sh" 2>/dev/null || true
 chmod +x "$PROJECT_DIR/install.sh" 2>/dev/null || true
 echo -e "${GREEN}  ✓ Permissões de execução configuradas.${NC}"
+
+read -r -p "Deseja criar um atalho no menu de aplicativos e Área de Trabalho? [S/n]: " create_sc
+create_sc=${create_sc:-S}
+if [[ "$create_sc" =~ ^[Ss]$ ]] || [[ "$create_sc" =~ ^[Yy]$ ]]; then
+    desktop_file="[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Emulador Crédito Trabalhador
+Comment=Emulador de API Crédito ao Trabalhador
+Exec=bash -c \"cd '$PROJECT_DIR' && ./iniciar.sh\"
+Icon=utilities-terminal
+Terminal=true
+Categories=Development;Utility;"
+
+    # Salva no menu de aplicativos XDG
+    mkdir -p "$HOME/.local/share/applications" 2>/dev/null || true
+    echo "$desktop_file" > "$HOME/.local/share/applications/emulador-credito-trabalhador.desktop"
+    chmod +x "$HOME/.local/share/applications/emulador-credito-trabalhador.desktop" 2>/dev/null || true
+
+    # Salva no Desktop caso o diretorio exista
+    desktop_dir=""
+    if [ -d "$HOME/Desktop" ]; then
+        desktop_dir="$HOME/Desktop"
+    elif [ -d "$HOME/Área de Trabalho" ]; then
+        desktop_dir="$HOME/Área de Trabalho"
+    fi
+
+    if [ -n "$desktop_dir" ]; then
+        echo "$desktop_file" > "$desktop_dir/emulador-credito-trabalhador.desktop"
+        chmod +x "$desktop_dir/emulador-credito-trabalhador.desktop" 2>/dev/null || true
+    fi
+    echo -e "${GREEN}  ✓ Atalho criado com sucesso!${NC}"
+fi
 
 echo ""
 echo -e "${GREEN}=================================================================${NC}"

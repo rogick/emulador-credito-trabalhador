@@ -117,23 +117,52 @@ if ($nodeMajor -ge 18) {
 }
 
 Write-Host ""
-Write-Host "[2/3] Instalando dependências do projeto (npm install)..." -ForegroundColor Cyan
+Write-Host "[2/3] Verificando dependências do projeto..." -ForegroundColor Cyan
 
 $projectDir = $PSScriptRoot
 Set-Location $projectDir
 
-try {
-    npm install
-    Write-Host "  ✓ Todas as dependências foram instaladas com sucesso!" -ForegroundColor Green
-} catch {
-    Write-Host "  ✗ Ocorreu um erro ao executar npm install: $_" -ForegroundColor Red
-    Write-Host "Pressione qualquer tecla para sair..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    exit 1
+# Inicializa arquivo .env a partir de .env.example se nao existir
+if (-not (Test-Path ".env") -and (Test-Path ".env.example")) {
+    Copy-Item ".env.example" ".env"
+    Write-Host "  ✓ Arquivo de configuração .env inicializado com sucesso." -ForegroundColor Green
+}
+
+if (Test-Path "node_modules") {
+    Write-Host "  ✓ Dependências já presentes (pasta node_modules encontrada)." -ForegroundColor Green
+} else {
+    Write-Host "  ➜ Instalando dependências (npm install)..." -ForegroundColor Cyan
+    try {
+        npm install --omit=dev
+        Write-Host "  ✓ Todas as dependências foram instaladas com sucesso!" -ForegroundColor Green
+    } catch {
+        Write-Host "  ✗ Ocorreu um erro ao executar npm install: $_" -ForegroundColor Red
+        Write-Host "Pressione qualquer tecla para sair..."
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        exit 1
+    }
 }
 
 Write-Host ""
-Write-Host "[3/3] Configuração concluída!" -ForegroundColor Cyan
+Write-Host "[3/3] Configurando atalhos..." -ForegroundColor Cyan
+
+$createShortcut = Read-Host "Deseja criar um atalho na Área de Trabalho? (S/N) [Padrão: S]"
+if ([string]::IsNullOrWhiteSpace($createShortcut) -or $createShortcut.Trim().ToUpper() -eq 'S') {
+    try {
+        $desktopPath = [Environment]::GetFolderPath("Desktop")
+        $shortcutPath = Join-Path $desktopPath "Emulador Crédito Trabalhador.lnk"
+        $wshShell = New-Object -ComObject WScript.Shell
+        $shortcut = $wshShell.CreateShortcut($shortcutPath)
+        $shortcut.TargetPath = Join-Path $projectDir "iniciar.bat"
+        $shortcut.WorkingDirectory = $projectDir
+        $shortcut.Description = "Emulador de API Crédito ao Trabalhador"
+        $shortcut.Save()
+        Write-Host "  ✓ Atalho criado com sucesso na Área de Trabalho!" -ForegroundColor Green
+    } catch {
+        Write-Host "  ⚠ Não foi possível criar o atalho automaticamente: $_" -ForegroundColor Yellow
+    }
+}
+
 Write-Host ""
 Write-Host "=================================================================" -ForegroundColor Green
 Write-Host "   🎉 INSTALAÇÃO FINALIZADA COM SUCESSO!                         " -ForegroundColor Green
@@ -152,3 +181,4 @@ if ([string]::IsNullOrWhiteSpace($startNow) -or $startNow.Trim().ToUpper() -eq '
 } else {
     Write-Host "Instalação finalizada. Até logo!" -ForegroundColor Gray
 }
+

@@ -44,8 +44,10 @@ Você pode baixar, descompactar e rodar o instalador diretamente pelo terminal s
 Execute no PowerShell:
 
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/rogick/emulador-credito-trabalhador/archive/refs/heads/master.zip" -OutFile "emulador.zip"; Expand-Archive -Path "emulador.zip" -DestinationPath "."; cd "emulador-credito-trabalhador-master"; .\install.bat
+Invoke-WebRequest -Uri "https://github.com/rogick/emulador-credito-trabalhador/archive/refs/heads/master.zip" -OutFile "emulador.zip"; Expand-Archive -Path "emulador.zip" -DestinationPath "."; cd "emulador-credito-trabalhador-master"; .\install.ps1
 ```
+
+*(Caso o PowerShell bloqueie a execução de scripts, rode antes no mesmo terminal: `Set-ExecutionPolicy -Scope Process Bypass`)*
 
 #### 🐧 Linux (Bash / cURL)
 
