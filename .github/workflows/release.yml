@@ -1,0 +1,96 @@
+name: Gerar Release com Instalador
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Tag de versão personalizada (ex: v1.0.0) [opcional, usa package.json se vazio]'
+        required: false
+        type: string
+        default: ''
+      build_offline:
+        description: 'Gerar também o pacote Offline (com dependências pré-instaladas)?'
+        required: false
+        type: boolean
+        default: true
+      draft:
+        description: 'Criar como rascunho (Draft)?'
+        required: false
+        type: boolean
+        default: false
+      prerelease:
+        description: 'Marcar como versão de pré-lançamento (Pre-release)?'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Construir Pacotes e Publicar Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js LTS (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: Gerar Pacotes de Release com Instalador
+        run: |
+          BUILD_ARGS=""
+          if [ "${{ github.event.inputs.build_offline }}" = "true" ] || [ "${{ github.event_name }}" = "push" ]; then
+            BUILD_ARGS="--all"
+          fi
+          
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            CLEAN_VER=$(echo "${{ github.event.inputs.version_tag }}" | sed 's/^v//')
+            node scripts/generate-release.js $BUILD_ARGS --version "$CLEAN_VER"
+          else
+            node scripts/generate-release.js $BUILD_ARGS
+          fi
+
+      - name: Determinar Tag do Release
+        id: release_tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+          elif [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG_NAME="${{ github.event.inputs.version_tag }}"
+            [[ "$TAG_NAME" != v* ]] && TAG_NAME="v$TAG_NAME"
+          else
+            PKG_VER=$(node -p "require('./package.json').version")
+            TAG_NAME="v$PKG_VER"
+          fi
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Tag definida: $TAG_NAME"
+
+      - name: Publicar GitHub Release com Ativos
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: Emulador Crédito Trabalhador ${{ steps.release_tag.outputs.tag }}
+          body_path: release/RELEASE_INFO.md
+          draft: ${{ github.event.inputs.draft || false }}
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          generate_release_notes: true
+          files: |
+            release/*.zip
+            release/*.tar.gz
+            release/SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
