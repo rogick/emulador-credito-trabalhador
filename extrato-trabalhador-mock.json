@@ -1,10 +1,10 @@
 [
   {
-    "cpf": 73736669658,
+    "cpf": "00000000000",
     "matricula": 111304940,
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": 60851107,
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "ACABA PELO AMOR DE DEUS SQL",
     "nomeEmpregador": "EMPRESA MODELO SQL PESSOAL",
     "emprestimos": [
@@ -69,11 +69,11 @@
     ]
   },
   {
-    "cpf": "11144477735",
+    "cpf": "99999999999",
     "matricula": "CONSIGNADO02",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "47192091",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "MARIA APARECIDA DE SOUZA",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
@@ -100,11 +100,11 @@
     ]
   },
   {
-    "cpf": "91062560078",
+    "cpf": "99999999999",
     "matricula": "20030",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "64001444",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "ADELCIO PROV MEDIAS1",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
@@ -187,11 +187,11 @@
     ]
   },
   {
-    "cpf": "11144477735",
+    "cpf": "99999999999",
     "matricula": "CONSIGNADO02",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "47192091",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "MARIA APARECIDA DE SOUZA",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
@@ -218,11 +218,11 @@
     ]
   },
   {
-    "cpf": "93729302027",
+    "cpf": "00000000000",
     "matricula": "45455",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "64001444",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "MESSIAS JUNIOR FRANCISCO DE ARAUJO BRITO",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
@@ -287,11 +287,11 @@
     ]
   },
   {
-    "cpf": "11144477735",
+    "cpf": "99999999999",
     "matricula": "CONSIGNADO02",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "47192091",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "MARIA APARECIDA DE SOUZA",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
@@ -318,11 +318,11 @@
     ]
   },
   {
-    "cpf": "95948979024",
+    "cpf": "99999999999",
     "matricula": "20029",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "64001444",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "ADELCIO PROV MEDIAS",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
@@ -349,11 +349,11 @@
     ]
   },
   {
-    "cpf": "91062560078",
+    "cpf": "99999999999",
     "matricula": "20030",
     "inscricaoEmpregador.codigo": 1,
     "inscricaoEmpregador.descricao": "CNPJ",
-    "numeroInscricaoEmpregador": "64001444",
+    "numeroInscricaoEmpregador": "00000000",
     "nomeTrabalhador": "ADELCIO PROV MEDIAS",
     "nomeEmpregador": "EMPREGADOR XYZ LTDA.",
     "emprestimos": [
